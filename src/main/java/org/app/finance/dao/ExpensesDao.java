@@ -5,10 +5,9 @@ import org.app.finance.model.Expenses;
 import org.app.finance.model.ExpensesCategory;
 import org.app.finance.model.SpendLimit;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +16,6 @@ public class ExpensesDao {
     PreparedStatement preparedStatement;
     Connection connection;
     ResultSet resultSet;
-
     String sql, remarks;
     int userId, categoryId, amount;
 
@@ -26,7 +24,9 @@ public class ExpensesDao {
         categoryId = expenses.getCategoryId();
         remarks = expenses.getRemarks();
         userId = getUserId(userName);
-        sql = "INSERT INTO expenses(expenses_amount,expenses_category,user_id,remarks,date,time) VALUES (?,?,?,?,curdate(),curtime())";
+        LocalTime localTime = LocalTime.now();
+        Time time = Time.valueOf(localTime);
+        sql = "INSERT INTO expenses(expenses_amount,expenses_category,user_id,remarks,date,time) VALUES (?,?,?,?,curdate(),?)";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -34,6 +34,7 @@ public class ExpensesDao {
             preparedStatement.setInt(2, categoryId);
             preparedStatement.setInt(3, userId);
             preparedStatement.setString(4, remarks);
+            preparedStatement.setTime(5,time);
             preparedStatement.executeUpdate();
             connection.close();
             preparedStatement.close();
@@ -101,7 +102,7 @@ public class ExpensesDao {
         userId = getUserId(userName);
         categoryId = spendLimit.getCategoryId();
         amount = spendLimit.getAmount();
-        sql = "INSERT INTO spending_limit(category_id, user_id, amount) values (?,?,?)";
+        sql = "INSERT INTO spending_limit(category_id, user_id, amount,date) values (?,?,?,CURDATE())";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -119,11 +120,17 @@ public class ExpensesDao {
     public List<SpendLimit> getSpendingLimit(String userName) {
         userId = getUserId(userName);
         List<SpendLimit> spendLimitList = new ArrayList<SpendLimit>();
-        sql = "SELECT  spending_limit.amount,expenses_category.category_name FROM spending_limit INNER JOIN expenses_category ON spending_limit.category_id = expenses_category.category_id WHERE user_id=?";
+        LocalDate localDate = LocalDate.now();
+        String[] splitDate = localDate.toString().split("-");
+        int year = Integer.parseInt(splitDate[0]);
+        int month = Integer.parseInt(splitDate[1]);
+        sql = "SELECT  spending_limit.amount,expenses_category.category_name FROM spending_limit INNER JOIN expenses_category ON spending_limit.category_id = expenses_category.category_id WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=?";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, year);
+            preparedStatement.setInt(3, month);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 SpendLimit spendLimit = new SpendLimit();
@@ -143,12 +150,18 @@ public class ExpensesDao {
     public int getSumOfExpenses(String userName, int categoryId) {
         int expensesAmount = 0;
         userId = getUserId(userName);
-        sql = "SELECT SUM(expenses.expenses_amount) FROM expenses WHERE user_id=? AND expenses_category=?";
+        LocalTime localTime = LocalTime.now();
+        String[] splitDate = localTime.toString().split("-");
+        int year = Integer.parseInt(splitDate[0]);
+        int month = Integer.parseInt(splitDate[1]);
+        sql = "SELECT SUM(expenses.expenses_amount) FROM expenses WHERE user_id=? AND expenses_category=? AND year(date)=? AND MONTH(date)=?";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, categoryId);
+            preparedStatement.setInt(3, year);
+            preparedStatement.setInt(4, month);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 expensesAmount = resultSet.getInt(1);
