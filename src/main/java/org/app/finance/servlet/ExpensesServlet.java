@@ -32,12 +32,24 @@ public class ExpensesServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         String userName = (String) session.getAttribute("user");
         ExpensesDao expensesDao = new ExpensesDao();
-        int amount = Integer.parseInt(request.getParameter("amount"));
+        int addedExpenses = Integer.parseInt(request.getParameter("amount"));
         int categoryId = Integer.parseInt(request.getParameter("categoryId"));
         String remarks = request.getParameter("remarks");
-
+        int totalExpensesAmount = expensesDao.getSumOfExpenses(userName, categoryId);
+        int totalSpendLimit = expensesDao.getSumOfSpendLimit(userName, categoryId);
+        int leftSpendLimit = totalSpendLimit - totalExpensesAmount;
+        if ((totalExpensesAmount + addedExpenses) >= totalSpendLimit) {
+            System.out.println(totalExpensesAmount);
+            System.out.println(totalSpendLimit);
+            System.out.println(leftSpendLimit);
+            request.setAttribute("spendLimitError", "You are exceeding your spending limit left amount is" + " " + leftSpendLimit);
+            doGet(request, response);
+            RequestDispatcher requestDispatcher = request.getRequestDispatcher("expenses_form.jsp");
+            requestDispatcher.forward(request, response);
+            return;
+        }
         Expenses expenses = new Expenses();
-        expenses.setAmount(amount);
+        expenses.setAmount(addedExpenses);
         expenses.setCategoryId(categoryId);
         expenses.setRemarks(remarks);
         expensesDao.addExpanses(expenses, userName);

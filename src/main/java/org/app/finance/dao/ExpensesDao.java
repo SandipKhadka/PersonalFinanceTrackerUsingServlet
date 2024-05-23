@@ -3,6 +3,7 @@ package org.app.finance.dao;
 import org.app.finance.config.DatabaseConnection;
 import org.app.finance.model.Expenses;
 import org.app.finance.model.ExpensesCategory;
+import org.app.finance.model.SpendLimit;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -61,18 +62,19 @@ public class ExpensesDao {
     }
 
     public int getExpensesAmount(String userName) {
-        String sql = "SELECT SUM(expenses.expenses_amount ) FROM expenses INNER JOIN user_details ON expenses.user_id = user_details.user_id WHERE user_details.user_name =?";
+        userId = getUserId(userName);
+        sql = "SELECT SUM(expenses.expenses_amount ) FROM expenses WHERE user_id=?";
         int expenses = 0;
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, userName);
+            preparedStatement.setInt(1, userId);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 expenses = resultSet.getInt(1);
             }
         } catch (SQLException e) {
-            e.getSQLState();
+            e.printStackTrace();
         }
         return expenses;
     }
@@ -93,6 +95,93 @@ public class ExpensesDao {
             e.printStackTrace();
         }
         return userId;
+    }
+
+    public void addSpendingLimit(String userName, SpendLimit spendLimit) {
+        userId = getUserId(userName);
+        categoryId = spendLimit.getCategoryId();
+        amount = spendLimit.getAmount();
+        sql = "INSERT INTO spending_limit(category_id, user_id, amount) values (?,?,?)";
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, categoryId);
+            preparedStatement.setInt(2, userId);
+            preparedStatement.setInt(3, amount);
+            preparedStatement.executeUpdate();
+            connection.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<SpendLimit> getSpendingLimit(String userName) {
+        userId = getUserId(userName);
+        List<SpendLimit> spendLimitList = new ArrayList<SpendLimit>();
+        sql = "SELECT  spending_limit.amount,expenses_category.category_name FROM spending_limit INNER JOIN expenses_category ON spending_limit.category_id = expenses_category.category_id WHERE user_id=?";
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                SpendLimit spendLimit = new SpendLimit();
+                spendLimit.setAmount(resultSet.getInt(1));
+                spendLimit.setCategoryName(resultSet.getString(2));
+                spendLimitList.add(spendLimit);
+            }
+            connection.close();
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return spendLimitList;
+    }
+
+    public int getSumOfExpenses(String userName, int categoryId) {
+        int expensesAmount = 0;
+        userId = getUserId(userName);
+        sql = "SELECT SUM(expenses.expenses_amount) FROM expenses WHERE user_id=? AND expenses_category=?";
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, categoryId);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                expensesAmount = resultSet.getInt(1);
+            }
+            connection.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("expenses sum");
+        }
+        return expensesAmount;
+    }
+
+    public int getSumOfSpendLimit(String userName, int categoryId) {
+        int spendLimit = 0;
+        userId = getUserId(userName);
+        sql = "SELECT SUM(spending_limit.amount) FROM spending_limit WHERE user_id=? AND category_id=?";
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, categoryId);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                spendLimit = resultSet.getInt(1);
+            }
+            connection.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("spend limit");
+        }
+        return spendLimit;
     }
 }
 
