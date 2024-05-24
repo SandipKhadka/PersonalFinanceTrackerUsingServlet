@@ -35,7 +35,7 @@ public class RegisterServlet extends HttpServlet {
                 rd.forward(request, response);
             }
             HttpSession session = request.getSession();
-            session.setAttribute("user",userName);
+            session.setAttribute("user", userName);
             registerUserDao.registerUser(userRegisterDetails);
             RequestDispatcher requestDispatcher = request.getRequestDispatcher("dashboard");
             requestDispatcher.forward(request, response);

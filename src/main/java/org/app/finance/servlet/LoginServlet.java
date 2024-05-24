@@ -34,11 +34,11 @@ public class LoginServlet extends HttpServlet {
                 RequestDispatcher loginPageDispatcher = request.getRequestDispatcher("login.jsp");
                 loginPageDispatcher.forward(request, response);
             }
-            HttpSession session= request.getSession();
-            session.setAttribute("user",userName);
+            HttpSession session = request.getSession();
+            session.setAttribute("user", userName);
             loginUserDao.loginUser(userLoginDetails);
             RequestDispatcher dashBoardDispatcher = request.getRequestDispatcher("dashboard");
-            dashBoardDispatcher.forward(request,response);
+            dashBoardDispatcher.forward(request, response);
         } catch (Exception e) {
             RequestDispatcher requestDispatcher = request.getRequestDispatcher("error.jsp");
             requestDispatcher.forward(request, response);

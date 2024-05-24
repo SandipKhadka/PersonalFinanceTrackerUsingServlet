@@ -17,7 +17,7 @@ import java.util.List;
 @WebServlet("/addspendlimit")
 public class AddSpendingLimitServlet extends HttpServlet {
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException,ServletException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         ExpensesDao expensesDao = new ExpensesDao();
         List<ExpensesCategory> expensesCategoryList = expensesDao.getAllCategory();
         request.setAttribute("categoryNames", expensesCategoryList);
@@ -26,16 +26,16 @@ public class AddSpendingLimitServlet extends HttpServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException , IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int amount = Integer.parseInt(request.getParameter("amount"));
         int categoryId = Integer.parseInt(request.getParameter("categoryId"));
         HttpSession session = request.getSession(false);
-        String userName =(String) session.getAttribute("user");
+        String userName = (String) session.getAttribute("user");
         SpendLimit spendLimit = new SpendLimit();
         spendLimit.setAmount(amount);
         spendLimit.setCategoryId(categoryId);
         ExpensesDao expensesDao = new ExpensesDao();
-        expensesDao.addSpendingLimit(userName,spendLimit);
+        expensesDao.addSpendingLimit(userName, spendLimit);
         response.sendRedirect("dashboard");
     }
 }

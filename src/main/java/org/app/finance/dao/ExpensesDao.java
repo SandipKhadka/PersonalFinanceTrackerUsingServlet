@@ -34,7 +34,7 @@ public class ExpensesDao {
             preparedStatement.setInt(2, categoryId);
             preparedStatement.setInt(3, userId);
             preparedStatement.setString(4, remarks);
-            preparedStatement.setTime(5,time);
+            preparedStatement.setTime(5, time);
             preparedStatement.executeUpdate();
             connection.close();
             preparedStatement.close();
@@ -150,8 +150,8 @@ public class ExpensesDao {
     public int getSumOfExpenses(String userName, int categoryId) {
         int expensesAmount = 0;
         userId = getUserId(userName);
-        LocalTime localTime = LocalTime.now();
-        String[] splitDate = localTime.toString().split("-");
+        LocalDate localDate = LocalDate.now();
+        String[] splitDate = localDate.toString().split("-");
         int year = Integer.parseInt(splitDate[0]);
         int month = Integer.parseInt(splitDate[1]);
         sql = "SELECT SUM(expenses.expenses_amount) FROM expenses WHERE user_id=? AND expenses_category=? AND year(date)=? AND MONTH(date)=?";
@@ -178,12 +178,18 @@ public class ExpensesDao {
     public int getSumOfSpendLimit(String userName, int categoryId) {
         int spendLimit = 0;
         userId = getUserId(userName);
-        sql = "SELECT SUM(spending_limit.amount) FROM spending_limit WHERE user_id=? AND category_id=?";
+        LocalDate localDate = LocalDate.now();
+        String[] splitDate = localDate.toString().split("-");
+        int year = Integer.parseInt(splitDate[0]);
+        int month = Integer.parseInt(splitDate[1]);
+        sql = "SELECT SUM(spending_limit.amount) FROM spending_limit WHERE user_id=? AND category_id=? AND year(date)=? AND MONTH(date)=?";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, categoryId);
+            preparedStatement.setInt(3, year);
+            preparedStatement.setInt(4, month);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 spendLimit = resultSet.getInt(1);

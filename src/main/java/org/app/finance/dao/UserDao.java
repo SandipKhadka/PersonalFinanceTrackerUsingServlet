@@ -45,6 +45,7 @@ public class UserDao {
         return isPasswordCorrect(userName, hashedPassword);
 
     }
+
     public boolean isUserNameAvailable(String userName) {
         int userNameStatus = 0;
         sql = "SELECT COUNT(user_id) FROM user_details WHERE user_name =?";
