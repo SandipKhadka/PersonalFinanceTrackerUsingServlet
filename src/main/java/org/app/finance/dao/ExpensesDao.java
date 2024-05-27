@@ -3,14 +3,13 @@ package org.app.finance.dao;
 import org.app.finance.config.DatabaseConnection;
 import org.app.finance.model.Expenses;
 import org.app.finance.model.ExpensesCategory;
-import org.app.finance.model.SpendLimit;
+import org.app.finance.model.GraphData;
 
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class ExpensesDao {
     PreparedStatement preparedStatement;
@@ -43,7 +42,7 @@ public class ExpensesDao {
         }
     }
 
-    public List<ExpensesCategory> getAllCategory() {
+    public List<ExpensesCategory> getExpensesCategory() {
         sql = "SELECT category_id, category_name FROM expenses_category";
         List<ExpensesCategory> expensesCategoryList = new ArrayList<ExpensesCategory>();
         try {
@@ -80,80 +79,13 @@ public class ExpensesDao {
         return expenses;
     }
 
-    public int getUserId(String userName) {
-        try {
-            sql = "SELECT user_id FROM user_details WHERE user_name=? ";
-            connection = DatabaseConnection.getConnection();
-            preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, userName);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                userId = resultSet.getInt(1);
-            }
-            connection.close();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return userId;
-    }
-
-    public void addSpendingLimit(String userName, SpendLimit spendLimit) {
-        userId = getUserId(userName);
-        categoryId = spendLimit.getCategoryId();
-        amount = spendLimit.getAmount();
-        sql = "INSERT INTO spending_limit(category_id, user_id, amount,date) values (?,?,?,CURDATE())";
-        try {
-            connection = DatabaseConnection.getConnection();
-            preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, categoryId);
-            preparedStatement.setInt(2, userId);
-            preparedStatement.setInt(3, amount);
-            preparedStatement.executeUpdate();
-            connection.close();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public List<SpendLimit> getSpendingLimit(String userName) {
-        userId = getUserId(userName);
-        List<SpendLimit> spendLimitList = new ArrayList<SpendLimit>();
-        LocalDate localDate = LocalDate.now();
-        String[] splitDate = localDate.toString().split("-");
-        int year = Integer.parseInt(splitDate[0]);
-        int month = Integer.parseInt(splitDate[1]);
-        sql = "SELECT  spending_limit.amount,expenses_category.category_name FROM spending_limit INNER JOIN expenses_category ON spending_limit.category_id = expenses_category.category_id WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=?";
-        try {
-            connection = DatabaseConnection.getConnection();
-            preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, year);
-            preparedStatement.setInt(3, month);
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                SpendLimit spendLimit = new SpendLimit();
-                spendLimit.setAmount(resultSet.getInt(1));
-                spendLimit.setCategoryName(resultSet.getString(2));
-                spendLimitList.add(spendLimit);
-            }
-            connection.close();
-            resultSet.close();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return spendLimitList;
-    }
 
     public int getSumOfExpenses(String userName, int categoryId) {
         int expensesAmount = 0;
         userId = getUserId(userName);
         LocalDate localDate = LocalDate.now();
-        String[] splitDate = localDate.toString().split("-");
-        int year = Integer.parseInt(splitDate[0]);
-        int month = Integer.parseInt(splitDate[1]);
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
         sql = "SELECT SUM(expenses.expenses_amount) FROM expenses WHERE user_id=? AND expenses_category=? AND year(date)=? AND MONTH(date)=?";
         try {
             connection = DatabaseConnection.getConnection();
@@ -175,32 +107,111 @@ public class ExpensesDao {
         return expensesAmount;
     }
 
-    public int getSumOfSpendLimit(String userName, int categoryId) {
-        int spendLimit = 0;
+    public List<GraphData> getExpensesDataForGraph(String userName) {
         userId = getUserId(userName);
+        List<GraphData> data = new ArrayList<GraphData>();
         LocalDate localDate = LocalDate.now();
-        String[] splitDate = localDate.toString().split("-");
-        int year = Integer.parseInt(splitDate[0]);
-        int month = Integer.parseInt(splitDate[1]);
-        sql = "SELECT SUM(spending_limit.amount) FROM spending_limit WHERE user_id=? AND category_id=? AND year(date)=? AND MONTH(date)=?";
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
+        String sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name FROM expenses INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses_category.category_id";
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, year);
+            preparedStatement.setInt(3, month);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                GraphData graphTransaction = new GraphData();
+                graphTransaction.setAmount(resultSet.getInt(1));
+                graphTransaction.setName(resultSet.getString(2));
+                data.add(graphTransaction);
+            }
+            connection.close();
+            preparedStatement.close();
+            resultSet.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println(data);
+        }
+        return data;
+    }
+
+    public List<GraphData> getExpensesByDay(String userName) {
+        userId = getUserId(userName);
+        List<GraphData> expensesByDay = new ArrayList<GraphData>();
+        LocalDate localDate = LocalDate.now();
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
+        sql = "SELECT DAY(date),SUM(expenses.expenses_amount) FROM expenses  WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses.expenses_category ,DAY(date)";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, categoryId);
-            preparedStatement.setInt(3, year);
-            preparedStatement.setInt(4, month);
+            preparedStatement.setInt(2, year);
+            preparedStatement.setInt(3, month);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                GraphData graphTransaction = new GraphData();
+                graphTransaction.setDay(resultSet.getInt(1));
+                graphTransaction.setAmount(resultSet.getInt(2));
+                expensesByDay.add(graphTransaction);
+            }
+            connection.close();
+            preparedStatement.close();
+            resultSet.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("expenses sum");
+        }
+        return expensesByDay;
+    }
+
+    public List<GraphData> getTopFiveExpensesByCategory(String userName) {
+        userId = getUserId(userName);
+        List<GraphData> graphData = new ArrayList<GraphData>();
+        sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name FROM expenses INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id WHERE user_id=? AND YEAR(DATE)=? AND MONTH(DATE)=? GROUP BY expenses.expenses_category ORDER BY SUM(expenses.expenses_amount) DESC LIMIT 5";
+        LocalDate localDate = LocalDate.now();
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, year);
+            preparedStatement.setInt(3, month);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                GraphData graphTransaction = new GraphData();
+                graphTransaction.setAmount(resultSet.getInt(1));
+                graphTransaction.setName(resultSet.getString(2));
+                graphData.add(graphTransaction);
+            }
+            connection.close();
+            preparedStatement.close();
+            resultSet.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("top 5");
+        }
+        return graphData;
+    }
+
+    public int getUserId(String userName) {
+        try {
+            sql = "SELECT user_id FROM user_details WHERE user_name=? ";
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, userName);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                spendLimit = resultSet.getInt(1);
+                userId = resultSet.getInt(1);
             }
             connection.close();
             preparedStatement.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("spend limit");
         }
-        return spendLimit;
+        return userId;
     }
 }
-

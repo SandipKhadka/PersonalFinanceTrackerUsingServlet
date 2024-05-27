@@ -51,7 +51,7 @@ public class TransactionDao {
     }
 
 
-    public List<Transaction> getExpensesTransaction(String userName, String filterDate) {
+    public List<Transaction> getExpensesByCategoryNameAndAmount(String userName, String filterDate) {
         String sql = "SELECT expenses_amount,category_name,remarks,date,time FROM expenses INNER JOIN expenses_category ON expenses.expenses_category=expenses_category.category_id INNER JOIN user_details ON expenses.user_id = user_details.user_id WHERE user_name =? AND YEAR(date) =? AND MONTH(date) =?";
         date = filterDate.split("-");
         year = Integer.parseInt(date[0]);

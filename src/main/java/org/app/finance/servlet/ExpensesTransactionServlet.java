@@ -26,7 +26,7 @@ public class ExpensesTransactionServlet extends HttpServlet {
             filterDate = localDate.toString();
         }
         TransactionDao transactionDao = new TransactionDao();
-        List<Transaction> transactions = transactionDao.getExpensesTransaction(userName, filterDate);
+        List<Transaction> transactions = transactionDao.getExpensesByCategoryNameAndAmount(userName, filterDate);
         request.setAttribute("transactions", transactions);
         RequestDispatcher view = request.getRequestDispatcher("expenses_transaction.jsp");
         view.forward(request, response);

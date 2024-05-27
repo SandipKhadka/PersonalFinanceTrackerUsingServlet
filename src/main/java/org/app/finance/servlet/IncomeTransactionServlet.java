@@ -21,10 +21,12 @@ public class IncomeTransactionServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         String userName = (String) session.getAttribute("user");
         String filterDate = request.getParameter("filterDate");
+
         if (filterDate == null || filterDate.equals("")) {
             LocalDate localDate = LocalDate.now();
             filterDate = localDate.toString();
         }
+
         TransactionDao transactionDao = new TransactionDao();
         List<Transaction> transactions = transactionDao.getIncomeTransaction(userName, filterDate);
         request.setAttribute("transactions", transactions);

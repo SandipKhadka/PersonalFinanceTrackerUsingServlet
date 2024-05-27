@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.app.finance.dao.ExpensesDao;
+import org.app.finance.dao.SpendingLimitDao;
 import org.app.finance.model.Expenses;
 import org.app.finance.model.ExpensesCategory;
 
@@ -20,13 +21,13 @@ public class ExpensesServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ExpensesDao expensesDao = new ExpensesDao();
-        List<ExpensesCategory> expensesCategoryList = expensesDao.getAllCategory();
+        List<ExpensesCategory> expensesCategoryList = expensesDao.getExpensesCategory();
         request.setAttribute("categoryNames", expensesCategoryList);
         RequestDispatcher requestDispatcher = request.getRequestDispatcher("expenses_form.jsp");
         requestDispatcher.forward(request, response);
     }
 
-    // this method will insert income in database
+    // this method will insert income in database and total expenses limit
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
@@ -35,21 +36,26 @@ public class ExpensesServlet extends HttpServlet {
         int addedExpenses = Integer.parseInt(request.getParameter("amount"));
         int categoryId = Integer.parseInt(request.getParameter("categoryId"));
         String remarks = request.getParameter("remarks");
+
+        SpendingLimitDao spendingLimitDao = new SpendingLimitDao();
         int totalExpensesAmount = expensesDao.getSumOfExpenses(userName, categoryId);
-        int totalSpendLimit = expensesDao.getSumOfSpendLimit(userName, categoryId);
+        int totalSpendLimit = spendingLimitDao.getSumOfSpendLimit(userName, categoryId);
         int leftSpendLimit = totalSpendLimit - totalExpensesAmount;
+
         if (totalSpendLimit != 0) {
             if ((totalExpensesAmount + addedExpenses) >= totalSpendLimit) {
                 System.out.println(totalExpensesAmount);
                 System.out.println(totalSpendLimit);
                 System.out.println(leftSpendLimit);
-                request.setAttribute("spendLimitError", "You are exceeding your spending limit left amount is" + " " + leftSpendLimit);
+                request.setAttribute("spendLimitError",
+                        "You are exceeding your spending limit left amount is" + " " + leftSpendLimit);
                 doGet(request, response);
                 RequestDispatcher requestDispatcher = request.getRequestDispatcher("expenses_form.jsp");
                 requestDispatcher.forward(request, response);
                 return;
             }
         }
+
         Expenses expenses = new Expenses();
         expenses.setAmount(addedExpenses);
         expenses.setCategoryId(categoryId);

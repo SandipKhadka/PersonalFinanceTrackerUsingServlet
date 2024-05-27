@@ -4,6 +4,7 @@ CREATE TABLE spending_limit
     category_id int,
     user_id     int,
     amount      int,
+    date DATE NOT NULL,
     FOREIGN KEY (category_id) REFERENCES expenses_category (category_id),
     FOREIGN KEY (user_id) REFERENCES user_details (user_id)
 );
