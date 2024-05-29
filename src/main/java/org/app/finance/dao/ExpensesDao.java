@@ -42,12 +42,31 @@ public class ExpensesDao {
         }
     }
 
-    public List<ExpensesCategory> getExpensesCategory() {
-        sql = "SELECT category_id, category_name FROM expenses_category";
+    public void addExpensesCategory(String categoryName, String userName) {
+        userId = getUserId(userName);
+        sql = "INSERT INTO expenses_category(category_name, user_id) VALUES(?,?)";
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, categoryName);
+            preparedStatement.setInt(2, userId);
+            preparedStatement.executeUpdate();
+            connection.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("SQLException");
+        }
+    }
+
+    public List<ExpensesCategory> getExpensesCategory(String userName) {
+        userId = getUserId(userName);
+        sql = "SELECT category_id, category_name FROM expenses_category WHERE user_id=? OR user_id IS NULL";
         List<ExpensesCategory> expensesCategoryList = new ArrayList<ExpensesCategory>();
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 ExpensesCategory expensesCategory = new ExpensesCategory();
@@ -113,7 +132,7 @@ public class ExpensesDao {
         LocalDate localDate = LocalDate.now();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
-        String sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name FROM expenses INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses_category.category_id";
+        String sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name FROM expenses INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id WHERE expenses.user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses_category.category_id";
         try {
             Connection connection = DatabaseConnection.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -143,7 +162,7 @@ public class ExpensesDao {
         LocalDate localDate = LocalDate.now();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
-        sql = "SELECT DAY(date),SUM(expenses.expenses_amount) FROM expenses  WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses.expenses_category ,DAY(date)";
+        sql = "SELECT DAY(date),SUM(expenses.expenses_amount) FROM expenses  WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses.expenses_category ,DAY(date) ";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -170,7 +189,7 @@ public class ExpensesDao {
     public List<GraphData> getTopFiveExpensesByCategory(String userName) {
         userId = getUserId(userName);
         List<GraphData> graphData = new ArrayList<GraphData>();
-        sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name FROM expenses INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id WHERE user_id=? AND YEAR(DATE)=? AND MONTH(DATE)=? GROUP BY expenses.expenses_category ORDER BY SUM(expenses.expenses_amount) DESC LIMIT 5";
+        sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name FROM expenses INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id WHERE expenses.user_id=? AND YEAR(DATE)=? AND MONTH(DATE)=? GROUP BY expenses.expenses_category ORDER BY SUM(expenses.expenses_amount) DESC LIMIT 5";
         LocalDate localDate = LocalDate.now();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();

@@ -31,7 +31,6 @@
             </c:forEach>
         </select>
         <button type="submit" name="action" value="add">Add spending limit</button>
-        <button type="submit" name="action" value="update">Update spending Limit</button>
     </form>
 </div>
 </body>

@@ -4,7 +4,7 @@ CREATE TABLE spending_limit
     category_id int,
     user_id     int,
     amount      int,
-    date DATE NOT NULL,
+    date        DATE NOT NULL,
     FOREIGN KEY (category_id) REFERENCES expenses_category (category_id),
     FOREIGN KEY (user_id) REFERENCES user_details (user_id)
 );
@@ -22,13 +22,14 @@ CREATE TABLE user_details
 CREATE TABLE income_category
 (
     category_id   INT AUTO_INCREMENT PRIMARY KEY,
-    category_name VARCHAR(99)
+    category_name VARCHAR(99) user_id int,
+    FOREIGN KEY (user_id) REFERENCES user_details (user_id)
 );
 
 CREATE TABLE expenses_category
 (
     category_id   INT PRIMARY KEY AUTO_INCREMENT,
-    category_name VARCHAR(99)
+    category_name VARCHAR(99) FOREIGN KEY(user_id) REFERENCES user_details(user_id)
 );
 
 CREATE TABLE income

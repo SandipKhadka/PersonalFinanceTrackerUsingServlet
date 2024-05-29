@@ -7,22 +7,31 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.app.finance.dao.IncomeDao;
 import org.app.finance.dao.TransactionDao;
+import org.app.finance.model.Income;
+import org.app.finance.model.IncomeCategory;
 import org.app.finance.model.Transaction;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
-@WebServlet("/incometransaction")
+@WebServlet("/income")
 public class IncomeTransactionServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         String userName = (String) session.getAttribute("user");
+        // getting income categories
+        IncomeDao incomeDao = new IncomeDao();
+        List<IncomeCategory> incomeCategoryList = incomeDao.getIncomeCategory(userName);
+        request.setAttribute("categoryNames", incomeCategoryList);
+
+        //getting income transactions
         String filterDate = request.getParameter("filterDate");
 
-        if (filterDate == null || filterDate.equals("")) {
+        if (filterDate == null || filterDate.isEmpty()) {
             LocalDate localDate = LocalDate.now();
             filterDate = localDate.toString();
         }
@@ -32,5 +41,32 @@ public class IncomeTransactionServlet extends HttpServlet {
         request.setAttribute("transactions", transactions);
         RequestDispatcher view = request.getRequestDispatcher("income_transaction.jsp");
         view.forward(request, response);
+    }
+
+    // this method will insert income in database
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        String userName = (String) session.getAttribute("user");
+        IncomeDao incomeDao = new IncomeDao();
+        String command = request.getParameter("submit");
+        // add income category
+        if (command.equals("addCategory")) {
+            String categoryName = request.getParameter("categoryName");
+            incomeDao.addIncomeCategory(categoryName, userName);
+        }
+        // add income transactions
+        if (command.equals("addIncomeTransaction")) {
+            int amount = Integer.parseInt(request.getParameter("amount"));
+            int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+            String remarks = request.getParameter("remarks");
+
+            Income income = new Income();
+            income.setAmount(amount);
+            income.setCategoryId(categoryId);
+            income.setRemarks(remarks);
+            incomeDao.addIncome(income, userName);
+        }
+        response.sendRedirect("dashboard");
     }
 }

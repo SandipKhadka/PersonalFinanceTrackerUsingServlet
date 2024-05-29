@@ -37,8 +37,7 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("user", userName);
             loginUserDao.loginUser(userLoginDetails);
-            RequestDispatcher dashBoardDispatcher = request.getRequestDispatcher("dashboard");
-            dashBoardDispatcher.forward(request, response);
+            response.sendRedirect("dashboard");
         } catch (Exception e) {
             RequestDispatcher requestDispatcher = request.getRequestDispatcher("error.jsp");
             requestDispatcher.forward(request, response);
