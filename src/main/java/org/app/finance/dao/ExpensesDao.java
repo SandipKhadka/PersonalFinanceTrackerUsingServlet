@@ -4,6 +4,7 @@ import org.app.finance.config.DatabaseConnection;
 import org.app.finance.model.Expenses;
 import org.app.finance.model.ExpensesCategory;
 import org.app.finance.model.GraphData;
+import org.app.finance.model.Transaction;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -16,7 +17,8 @@ public class ExpensesDao {
     Connection connection;
     ResultSet resultSet;
     String sql, remarks;
-    int userId, categoryId, amount;
+    int userId, categoryId, amount, year, month;
+    String[] dateStrings;
 
     public void addExpanses(Expenses expenses, String userName) {
         amount = expenses.getAmount();
@@ -80,6 +82,36 @@ public class ExpensesDao {
         return expensesCategoryList;
     }
 
+    public List<Transaction> getExpensesTransaction(String userName, String filterDate) {
+        String sql = "SELECT expenses_amount,category_name,remarks,date,time FROM expenses INNER JOIN expenses_category ON expenses.expenses_category=expenses_category.category_id INNER JOIN user_details ON expenses.user_id = user_details.user_id WHERE user_name =? AND YEAR(date) =? AND MONTH(date) =?";
+        dateStrings = filterDate.split("-");
+        year = Integer.parseInt(dateStrings[0]);
+        month = Integer.parseInt(dateStrings[1]);
+        List<Transaction> expensesTransactions = new ArrayList<Transaction>();
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, userName);
+            preparedStatement.setInt(2, year);
+            preparedStatement.setInt(3, month);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                Transaction transaction = new Transaction();
+                transaction.setAmount(resultSet.getInt(1));
+                transaction.setCategory(resultSet.getString(2));
+                transaction.setRemarks(resultSet.getString(3));
+                transaction.setDate(resultSet.getDate(4));
+                transaction.setTime(resultSet.getTime(5));
+                expensesTransactions.add(transaction);
+            }
+            connection.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.getSQLState();
+        }
+        return expensesTransactions;
+    }
+
     public int getExpensesAmount(String userName) {
         userId = getUserId(userName);
         sql = "SELECT SUM(expenses.expenses_amount ) FROM expenses WHERE user_id=?";
@@ -97,7 +129,6 @@ public class ExpensesDao {
         }
         return expenses;
     }
-
 
     public int getSumOfExpenses(String userName, int categoryId) {
         int expensesAmount = 0;
@@ -126,12 +157,12 @@ public class ExpensesDao {
         return expensesAmount;
     }
 
-    public List<GraphData> getExpensesDataForGraph(String userName) {
+    public List<GraphData> getExpensesDataWithAmountAndCategory(String userName, String filterDate) {
         userId = getUserId(userName);
         List<GraphData> data = new ArrayList<GraphData>();
-        LocalDate localDate = LocalDate.now();
-        int year = localDate.getYear();
-        int month = localDate.getMonthValue();
+        dateStrings = filterDate.split("-");
+        year = Integer.parseInt(dateStrings[0]);
+        month = Integer.parseInt(dateStrings[1]);
         String sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name FROM expenses INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id WHERE expenses.user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses_category.category_id";
         try {
             Connection connection = DatabaseConnection.getConnection();
@@ -156,12 +187,12 @@ public class ExpensesDao {
         return data;
     }
 
-    public List<GraphData> getExpensesByDay(String userName) {
+    public List<GraphData> getExpensesByDay(String userName, String filterDate) {
         userId = getUserId(userName);
         List<GraphData> expensesByDay = new ArrayList<GraphData>();
-        LocalDate localDate = LocalDate.now();
-        int year = localDate.getYear();
-        int month = localDate.getMonthValue();
+        dateStrings = filterDate.split("-");
+        year = Integer.parseInt(dateStrings[0]);
+        month = Integer.parseInt(dateStrings[1]);
         sql = "SELECT DAY(date),SUM(expenses.expenses_amount) FROM expenses  WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses.expenses_category ,DAY(date) ";
         try {
             connection = DatabaseConnection.getConnection();
@@ -186,13 +217,13 @@ public class ExpensesDao {
         return expensesByDay;
     }
 
-    public List<GraphData> getTopFiveExpensesByCategory(String userName) {
+    public List<GraphData> getTopFiveExpensesByCategory(String userName, String filterDate) {
         userId = getUserId(userName);
         List<GraphData> graphData = new ArrayList<GraphData>();
         sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name FROM expenses INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id WHERE expenses.user_id=? AND YEAR(DATE)=? AND MONTH(DATE)=? GROUP BY expenses.expenses_category ORDER BY SUM(expenses.expenses_amount) DESC LIMIT 5";
-        LocalDate localDate = LocalDate.now();
-        int year = localDate.getYear();
-        int month = localDate.getMonthValue();
+        dateStrings = filterDate.split("-");
+        year = Integer.parseInt(dateStrings[0]);
+        month = Integer.parseInt(dateStrings[1]);
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);

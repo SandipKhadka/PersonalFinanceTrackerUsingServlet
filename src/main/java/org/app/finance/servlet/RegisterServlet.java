@@ -33,12 +33,12 @@ public class RegisterServlet extends HttpServlet {
                 request.setAttribute("userNameError", "User name is already taken");
                 RequestDispatcher rd = request.getRequestDispatcher("register.jsp");
                 rd.forward(request, response);
+                return;
             }
             HttpSession session = request.getSession();
             session.setAttribute("user", userName);
             registerUserDao.registerUser(userRegisterDetails);
-            RequestDispatcher requestDispatcher = request.getRequestDispatcher("dashboard");
-            requestDispatcher.forward(request, response);
+            response.sendRedirect("user_dashboard.jsp");
         } catch (Exception e) {
             RequestDispatcher requestDispatcher = request.getRequestDispatcher("error.jsp");
             requestDispatcher.forward(request, response);

@@ -12,6 +12,7 @@ import org.app.finance.dao.IncomeDao;
 import org.app.finance.model.GraphData;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @WebServlet("/dashboard")
@@ -21,6 +22,9 @@ public class DashboardServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         String userName = (String) session.getAttribute("user");
+
+        LocalDate localDate = LocalDate.now();
+        String stringDate = localDate.toString();
 
         IncomeDao incomeDao = new IncomeDao();
         int income = incomeDao.getIncomeAmount(userName);
@@ -33,14 +37,14 @@ public class DashboardServlet extends HttpServlet {
         int netIncome = income - expenses;
         request.setAttribute("netIncome", netIncome);
 
-        List<GraphData> transactions = expensesDao.getExpensesDataForGraph(userName);
-        request.setAttribute("transactions", transactions);
+        List<GraphData> transactions = expensesDao.getExpensesDataWithAmountAndCategory(userName, stringDate);
+        request.setAttribute("pieChartData", transactions);
         transactions.forEach(System.out::println);
 
-        List<GraphData> graphDataByDay = expensesDao.getExpensesByDay(userName);
+        List<GraphData> graphDataByDay = expensesDao.getExpensesByDay(userName, stringDate);
         request.setAttribute("expensesByDay", graphDataByDay);
 
-        List<GraphData> topFiveCategory = expensesDao.getTopFiveExpensesByCategory(userName);
+        List<GraphData> topFiveCategory = expensesDao.getTopFiveExpensesByCategory(userName, stringDate);
         request.setAttribute("topFiveCategory", topFiveCategory);
 
         RequestDispatcher requestDispatcher = request.getRequestDispatcher("user_dashboard.jsp");

@@ -19,14 +19,14 @@
         function drawChart() {
 
             var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Topping');
-            data.addColumn('number', 'Slices');
-            <c:forEach items="${transactions}" var="item">
+            data.addColumn('string', 'Category');
+            data.addColumn('number', 'Amount');
+            <c:forEach items="${pieChartData}" var="item">
             data.addRow(['${item.name}', ${item.amount}]);
             </c:forEach>
 
             var options = {
-                'title': 'How Much Pizza I Ate Last Night',
+                'title': 'Expenses of this month',
                 'width': 400,
                 'height': 300
             };
@@ -35,25 +35,31 @@
         }
     </script>
     <script type="text/javascript">
-        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.load('current', {'packages': ['line']});
         google.charts.setOnLoadCallback(drawChart);
 
         function drawChart() {
+
             var data = new google.visualization.DataTable();
-            data.addColumn('string', 'day');
-            data.addColumn('number', 'amount');
+            data.addColumn('number', 'Day');
+            data.addColumn('number', 'Amount');
             <c:forEach var="expenses" items="${expensesByDay}">
-            data.addRow(['${expenses.day}', ${expenses.amount}]);
+            data.addRows([
+                [${expenses.day}, ${expenses.amount}]
+            ]);
             </c:forEach>
             var options = {
-                title: 'Company Performance',
-                curveType: 'function',
-                legend: {position: 'bottom'}
+                chart: {
+                    title: 'Expenses by day',
+                    subtitle: 'in millions of dollars (USD)'
+                },
+                width: 400,
+                height: 300
             };
 
-            var chart = new google.visualization.LineChart(document.getElementById('expenses-by-day'));
+            var chart = new google.charts.Line(document.getElementById('expenses-by-day'));
 
-            chart.draw(data, options);
+            chart.draw(data, google.charts.Line.convertOptions(options));
         }
     </script>
     <script type="text/javascript">
@@ -62,8 +68,8 @@
 
         function drawChart() {
             var data = new google.visualization.DataTable();
-            data.addColumn('string', 'day');
-            data.addColumn('number', 'amount');
+            data.addColumn('string', 'Category');
+            data.addColumn('number', 'Amount');
             data.addColumn({role: "style"});
             <c:forEach var="expenses" items="${topFiveCategory}">
             data.addRow(['${expenses.name}', ${expenses.amount}, 'blue']);
@@ -80,7 +86,7 @@
                 2]);
 
             var options = {
-                title: "Density of Precious Metals, in g/cm^3",
+                title: "Expenses top five category",
                 width: 600,
                 height: 400,
                 bar: {groupWidth: "95%"},

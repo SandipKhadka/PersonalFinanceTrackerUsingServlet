@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.app.finance.dao.IncomeDao;
-import org.app.finance.dao.TransactionDao;
+import org.app.finance.model.GraphData;
 import org.app.finance.model.Income;
 import org.app.finance.model.IncomeCategory;
 import org.app.finance.model.Transaction;
@@ -28,17 +28,28 @@ public class IncomeTransactionServlet extends HttpServlet {
         List<IncomeCategory> incomeCategoryList = incomeDao.getIncomeCategory(userName);
         request.setAttribute("categoryNames", incomeCategoryList);
 
-        //getting income transactions
+        // getting income transactions
         String filterDate = request.getParameter("filterDate");
 
+        LocalDate localDate = LocalDate.now();
         if (filterDate == null || filterDate.isEmpty()) {
-            LocalDate localDate = LocalDate.now();
             filterDate = localDate.toString();
         }
 
-        TransactionDao transactionDao = new TransactionDao();
-        List<Transaction> transactions = transactionDao.getIncomeTransaction(userName, filterDate);
+        List<Transaction> transactions = incomeDao.getIncomeTransaction(userName, filterDate);
         request.setAttribute("transactions", transactions);
+
+        List<GraphData> graphTransaction = incomeDao.getIncomesDataWithAmountAndCategory(userName, filterDate);
+        request.setAttribute("pieChartData", graphTransaction);
+        graphTransaction.forEach(System.out::println);
+
+        List<GraphData> graphDataByDay = incomeDao.getIncomeByDay(userName, filterDate);
+        request.setAttribute("incomeByDay", graphDataByDay);
+
+        List<GraphData> topFiveCategory = incomeDao.getTopFiveIncomeByCategory(userName, filterDate);
+        request.setAttribute("topFiveCategory", topFiveCategory);
+
+
         RequestDispatcher view = request.getRequestDispatcher("income_transaction.jsp");
         view.forward(request, response);
     }
