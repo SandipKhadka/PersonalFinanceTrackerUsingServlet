@@ -40,12 +40,31 @@ public class IncomeDao {
         }
     }
 
-    public List<IncomeCategory> getAllCategories() {
-        sql = "SELECT * FROM income_category";
+    public void addIncomeCategory(String categoryName, String userName) {
+        userId = getUserId(userName);
+        sql = "INSERT INTO income_category(category_name, user_id) VALUES(?,?)";
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, categoryName);
+            preparedStatement.setInt(2, userId);
+            preparedStatement.executeUpdate();
+            connection.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("SQLException");
+        }
+    }
+
+    public List<IncomeCategory> getIncomeCategory(String userName) {
+        userId = getUserId(userName);
+        sql = "SELECT category_id,category_name FROM income_category WHERE user_id=? OR user_id IS NULL";
         List<IncomeCategory> incomeCategoryList = new ArrayList<IncomeCategory>();
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 IncomeCategory incomeCategory = new IncomeCategory();

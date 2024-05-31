@@ -12,8 +12,29 @@
 
 <body>
 <div>
+    <form action="income" method="post">
+        <input required type="number" name="amount" placeholder="Enter amount">
+        <select name="categoryId" id="categoryId" required>
+            <option value="" selected>Select the Category</option>
+            <c:forEach var="category" items="${categoryNames}">
+                <option value="${category.categoryId}">${category.categoryName}</option>
+            </c:forEach>
+        </select>
+        <input required type="text" name="remarks" placeholder="Enter remarks">
+        <input type="submit" name="submit" value="addIncomeTransaction">
+    </form>
+
+</div>
+<div>
+    <form action="income" method="post">
+        <input type="text" name="categoryName" placeholder="Enter New category">
+        <input type="submit" name="submit" value="addCategory">
+    </form>
+</div>
+<div>
+
     <h1>Income</h1>
-    <form action="incometransaction" method="get">
+    <form action="income" method="get">
         <input type="month" name="filterDate">
         <input type="submit" name="submit">
     </form>

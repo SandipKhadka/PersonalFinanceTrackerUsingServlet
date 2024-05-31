@@ -35,6 +35,7 @@ public class SpendingLimitDao {
             preparedStatement.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("adding");
         }
     }
 
@@ -44,7 +45,7 @@ public class SpendingLimitDao {
         LocalDate localDate = LocalDate.now();
         year = localDate.getYear();
         month = localDate.getMonthValue();
-        sql = "SELECT  spending_limit.amount,expenses_category.category_name FROM spending_limit INNER JOIN expenses_category ON spending_limit.category_id = expenses_category.category_id WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=?";
+        sql = "SELECT spending_limit.amount,expenses_category.category_name FROM spending_limit INNER JOIN expenses_category ON spending_limit.category_id = expenses_category.category_id WHERE spending_limit.user_id=? AND YEAR(date)=? AND MONTH(date)=?";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -63,6 +64,7 @@ public class SpendingLimitDao {
             preparedStatement.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("getSpendingLimit");
         }
         return spendLimitList;
     }
@@ -98,7 +100,7 @@ public class SpendingLimitDao {
         userId = getUserId(userName);
         sql = "UPDATE spending_limit SET amount=? WHERE user_id=? AND category_id=? AND YEAR(date)=? AND MONTH(date)=? ";
         amount = spendLimit.getAmount();
-        categoryId = 1;
+        categoryId = spendLimit.getCategoryId();
         LocalDate localDate = LocalDate.now();
         year = localDate.getYear();
         month = localDate.getMonthValue();
@@ -121,6 +123,42 @@ public class SpendingLimitDao {
             System.out.println(year);
             System.out.println(month);
         }
+    }
+
+    public boolean isCategorySpendingLimitExisted(String userName, SpendLimit spendLimit) {
+        userId = getUserId(userName);
+        categoryId = spendLimit.getCategoryId();
+        LocalDate localDate = LocalDate.now();
+        year = localDate.getYear();
+        month = localDate.getMonthValue();
+        sql = "SELECT id FROM spending_limit WHERE user_id=? AND category_id=? AND YEAR(date)=? AND MONTH(date)=?";
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, categoryId);
+            preparedStatement.setInt(3, year);
+            preparedStatement.setInt(4, month);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return true;
+            }
+            connection.close();
+            preparedStatement.close();
+            resultSet.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("isCategorySpendingLimitExisted");
+        }
+        return false;
+    }
+
+    public void addOrUpdateSpendingLimit(String userName, SpendLimit spendLimit) {
+        if (isCategorySpendingLimitExisted(userName, spendLimit)) {
+            updateSpendLimit(userName, spendLimit);
+            return;
+        }
+        addSpendingLimit(userName, spendLimit);
     }
 
     public int getUserId(String userName) {

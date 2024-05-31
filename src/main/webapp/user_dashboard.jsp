@@ -125,16 +125,11 @@
         </div>
     </div>
 </div>
+
 <a href="income">
-    <button>Add Income</button>
-</a>
-<a href="expenses">
-    <button>Add Expenses</button>
-</a>
-<a href="incometransaction">
     <button>Income Transaction</button>
 </a>
-<a href="expensestransaction">
+<a href="expenses">
     <button>Expenses Transaction</button>
 </a>
 <a href="spendlimit">

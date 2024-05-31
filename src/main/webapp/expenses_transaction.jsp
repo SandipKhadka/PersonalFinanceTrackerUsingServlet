@@ -12,10 +12,34 @@
 
 <body>
 <div>
-    <h1>Expenses</h1>
-    <form action="expensestransaction" method="get">
-        <input type="month" name="filterDate">
+    <body>
+    <form action="expenses" method="post">
+        <input name="amount" placeholder="Enter the expenses amount" required>
+        <select name="categoryId" id="categoryId" required>
+            <option selected disabled value="">Select category</option>
+            <c:forEach var="category" items="${categoryNames}">
+                <option value="${category.categoryId}">${category.categoryName}</option>
+            </c:forEach>
+        </select>
+        <input name="remarks" placeholder="Enter expenses remarks" required>
         <input type="submit" name="submit">
+        <div>
+            <span>${spendLimitError}</span>
+        </div>
+    </form>
+</div>
+
+<div>
+    <form action="expenses" method="post">
+        <input type="text" name="categoryName" placeholder="Enter new expenses category">
+        <input type="submit" name="submit" value="addExpensesCategory">
+    </form>
+</div>
+<div>
+    <h1>Expenses</h1>
+    <form action="expenses" method="get">
+        <input type="month" name="filterDate">
+        <input type="submit" name="submit" value="addCategory">
     </form>
     <table border="1">
         <tr>
