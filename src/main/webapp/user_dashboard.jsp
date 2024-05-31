@@ -26,7 +26,7 @@
             </c:forEach>
 
             var options = {
-                'title': 'How Much Pizza I Ate Last Night',
+                'title': 'How Much Pizza I Ate Last Night?',
                 'width': 400,
                 'height': 300
             };
