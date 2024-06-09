@@ -124,5 +124,99 @@ h1 {
   background-color: #333;
   padding: 20px;
   border-radius: 10px;
-  position: relative;
+}
+
+.filter-section {
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #333;
+  border-radius: 10px;
+}
+
+.filter-section form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-section form input[type="month"],
+.filter-section form button[type="submit"] {
+  background-color: #f5a623;
+  border: none;
+  color: #333;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 10px;
+  border: 1px solid #6decaf;
+  text-align: left;
+}
+
+.transactions-table th {
+  background-color: #333;
+  color: #6decaf;
+}
+
+.transactions-table tr:nth-child(even) {
+  background-color: #444;
+}
+
+.transactions-table tr:hover {
+  background-color: #555;
+}
+
+.expense-form {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 300px;
+  padding: 20px;
+  background-color: #333;
+  border-right: 1px solid #666;
+}
+
+.expense-form input[type="text"],
+.expense-form input[type="number"],
+.expense-form select,
+.expense-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #444;
+  color: #e6e6e6;
+}
+
+.expense-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.expense-form button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #f5a623;
+  color: #333;
+  cursor: pointer;
+  margin-top: 10px; /* Added margin to separate the button */
+}
+
+.expense-form h2 {
+  color: #f5a623;
+  margin-bottom: 10px;
 }
