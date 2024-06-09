@@ -167,10 +167,10 @@ contentType="text/html;charset=UTF-8" language="java" %>
             <input
               type="text"
               name="categoryName"
-              placeholder="Enter new expenses category"
+              placeholder="Enter new category"
             />
             <button type="submit" name="submit" value="addExpensesCategory">
-              Add Expenses Category
+              Add Category
             </button>
           </form>
         </div>
@@ -192,13 +192,15 @@ contentType="text/html;charset=UTF-8" language="java" %>
 
         <div class="transactions">
           <h2>Transactions</h2>
-          <form action="expenses" method="get">
-            <input type="month" name="filterDate" />
-            <button type="submit">Filter</button>
-          </form>
-          <table>
+            <div class="filter-section">
+                <form action="expenses" method="get">
+                    <input type="month" name="filterDate" />
+                    <button type="submit">Filter</button>
+                </form>
+            </div>
+          <table class="transactions-table">
             <tr>
-              <th>Expenses Amount</th>
+              <th>Expenses Amou nt</th>
               <th>Category</th>
               <th>Remarks</th>
               <td>Date</td>

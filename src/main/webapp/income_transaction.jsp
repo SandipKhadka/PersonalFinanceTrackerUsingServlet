@@ -132,6 +132,7 @@ contentType="text/html;charset=UTF-8" language="java" %>
             Add income
           </button>
         </form>
+
         <form action="income" method="post">
           <h2>Add New Category</h2>
           <input
@@ -140,7 +141,7 @@ contentType="text/html;charset=UTF-8" language="java" %>
             placeholder="Enter New category"
           />
           <button type="submit" name="submit" value="addCategory">
-            Add category
+            Add Category
           </button>
         </form>
       </div>
@@ -159,13 +160,17 @@ contentType="text/html;charset=UTF-8" language="java" %>
           <!-- Placeholder for Line Chart -->
         </div>
       </div>
+      <div class="transactions">
+        <h2>Transactions</h2>
+        <div class="filter-section">
+          <form action="income" method="get">
+            <input type="month" name="filterDate" />
+            <button type="submit">Filter</button>
+          </form>
+        </div>
+      </div>
 
-      <h2>Transactions</h2>
-      <form action="income" method="get">
-        <input type="month" name="filterDate" />
-        <button type="submit">Filter</button>
-      </form>
-      <table>
+      <table class="transactions-table">
         <tr>
           <th>Income Amount</th>
           <th>Category</th>
