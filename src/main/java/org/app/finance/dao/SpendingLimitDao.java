@@ -1,6 +1,6 @@
 package org.app.finance.dao;
 
-import org.app.finance.config.data;
+import org.app.finance.config.DatabaseConnection;
 import org.app.finance.model.SpendLimit;
 
 import java.sql.Connection;
@@ -25,7 +25,7 @@ public class SpendingLimitDao {
         amount = spendLimit.getAmount();
         sql = "INSERT INTO spending_limit(category_id, user_id, amount,date) values (?,?,?,CURDATE())";
         try {
-            connection = data.getConnection();
+            connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, categoryId);
             preparedStatement.setInt(2, userId);
@@ -47,7 +47,7 @@ public class SpendingLimitDao {
         month = localDate.getMonthValue();
         sql = "SELECT spending_limit.amount,expenses_category.category_name FROM spending_limit INNER JOIN expenses_category ON spending_limit.category_id = expenses_category.category_id WHERE spending_limit.user_id=? AND YEAR(date)=? AND MONTH(date)=?";
         try {
-            connection = data.getConnection();
+            connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, year);
@@ -77,7 +77,7 @@ public class SpendingLimitDao {
         month = localDate.getMonthValue();
         sql = "SELECT SUM(spending_limit.amount) FROM spending_limit WHERE user_id=? AND category_id=? AND year(date)=? AND MONTH(date)=?";
         try {
-            connection = data.getConnection();
+            connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, categoryId);
@@ -105,7 +105,7 @@ public class SpendingLimitDao {
         year = localDate.getYear();
         month = localDate.getMonthValue();
         try {
-            connection = data.getConnection();
+            connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, amount);
             preparedStatement.setInt(2, userId);
@@ -133,7 +133,7 @@ public class SpendingLimitDao {
         month = localDate.getMonthValue();
         sql = "SELECT id FROM spending_limit WHERE user_id=? AND category_id=? AND YEAR(date)=? AND MONTH(date)=?";
         try {
-            connection = data.getConnection();
+            connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, categoryId);
@@ -164,7 +164,7 @@ public class SpendingLimitDao {
     public int getUserId(String userName) {
         sql = "SELECT user_id FROM user_details WHERE user_name=? ";
         try {
-            connection = data.getConnection();
+            connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userName);
             resultSet = preparedStatement.executeQuery();

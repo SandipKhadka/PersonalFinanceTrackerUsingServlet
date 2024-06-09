@@ -1,6 +1,6 @@
 package org.app.finance.dao;
 
-import org.app.finance.config.data;
+import org.app.finance.config.DatabaseConnection;
 import org.app.finance.model.Login;
 import org.app.finance.model.Register;
 
@@ -24,7 +24,7 @@ public class UserDao {
         int insertStatus = 0;
         sql = "INSERT INTO user_details(first_name,last_name,user_name,password) VALUES(?,?,?,?)";
         try {
-            connection = data.getConnection();
+            connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, firstName);
             preparedStatement.setString(2, lastName);
@@ -50,7 +50,7 @@ public class UserDao {
         int userNameStatus = 0;
         sql = "SELECT COUNT(user_id) FROM user_details WHERE user_name =?";
         try {
-            connection = data.getConnection();
+            connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userName);
             resultSet = preparedStatement.executeQuery();
@@ -68,7 +68,7 @@ public class UserDao {
         int passwordStatus = 0;
         sql = "SELECT COUNT(user_id) FROM user_details WHERE user_name =? AND password=?";
         try {
-            connection = data.getConnection();
+            connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userName);
             preparedStatement.setLong(2, password);
