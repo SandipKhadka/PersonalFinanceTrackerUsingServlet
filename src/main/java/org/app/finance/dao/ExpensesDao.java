@@ -1,6 +1,6 @@
 package org.app.finance.dao;
 
-import org.app.finance.config.DatabaseConnection;
+import org.app.finance.config.data;
 import org.app.finance.model.Expenses;
 import org.app.finance.model.ExpensesCategory;
 import org.app.finance.model.GraphData;
@@ -29,7 +29,7 @@ public class ExpensesDao {
         Time time = Time.valueOf(localTime);
         sql = "INSERT INTO expenses(expenses_amount,expenses_category,user_id,remarks,date,time) VALUES (?,?,?,?,curdate(),?)";
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, amount);
             preparedStatement.setInt(2, categoryId);
@@ -48,7 +48,7 @@ public class ExpensesDao {
         userId = getUserId(userName);
         sql = "INSERT INTO expenses_category(category_name, user_id) VALUES(?,?)";
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, categoryName);
             preparedStatement.setInt(2, userId);
@@ -66,7 +66,7 @@ public class ExpensesDao {
         sql = "SELECT category_id, category_name FROM expenses_category WHERE user_id=? OR user_id IS NULL";
         List<ExpensesCategory> expensesCategoryList = new ArrayList<ExpensesCategory>();
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             resultSet = preparedStatement.executeQuery();
@@ -89,7 +89,7 @@ public class ExpensesDao {
         month = Integer.parseInt(dateStrings[1]);
         List<Transaction> expensesTransactions = new ArrayList<Transaction>();
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userName);
             preparedStatement.setInt(2, year);
@@ -117,7 +117,7 @@ public class ExpensesDao {
         sql = "SELECT SUM(expenses.expenses_amount ) FROM expenses WHERE user_id=?";
         int expenses = 0;
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             resultSet = preparedStatement.executeQuery();
@@ -138,7 +138,7 @@ public class ExpensesDao {
         int month = localDate.getMonthValue();
         sql = "SELECT SUM(expenses.expenses_amount) FROM expenses WHERE user_id=? AND expenses_category=? AND year(date)=? AND MONTH(date)=?";
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, categoryId);
@@ -165,7 +165,7 @@ public class ExpensesDao {
         month = Integer.parseInt(dateStrings[1]);
         String sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name FROM expenses INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id WHERE expenses.user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses_category.category_id";
         try {
-            Connection connection = DatabaseConnection.getConnection();
+            Connection connection = data.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, year);
@@ -195,7 +195,7 @@ public class ExpensesDao {
         month = Integer.parseInt(dateStrings[1]);
         sql = "SELECT DAY(date),SUM(expenses.expenses_amount) FROM expenses  WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses.expenses_category ,DAY(date) ";
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, year);
@@ -225,7 +225,7 @@ public class ExpensesDao {
         year = Integer.parseInt(dateStrings[0]);
         month = Integer.parseInt(dateStrings[1]);
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, year);
@@ -250,7 +250,7 @@ public class ExpensesDao {
     public int getUserId(String userName) {
         try {
             sql = "SELECT user_id FROM user_details WHERE user_name=? ";
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userName);
             resultSet = preparedStatement.executeQuery();

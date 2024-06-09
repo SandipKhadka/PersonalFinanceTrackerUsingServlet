@@ -1,6 +1,6 @@
 package org.app.finance.dao;
 
-import org.app.finance.config.DatabaseConnection;
+import org.app.finance.config.data;
 import org.app.finance.model.GraphData;
 import org.app.finance.model.Income;
 import org.app.finance.model.IncomeCategory;
@@ -29,7 +29,7 @@ public class IncomeDao {
         LocalTime localTime = LocalTime.now();
         Time sqlTime = Time.valueOf(localTime);
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             sql = "INSERT INTO income(income_amount, income_category, user_id, remarks, date, time) VALUES(?,?,?,?,CURDATE(),?)";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, amount);
@@ -49,7 +49,7 @@ public class IncomeDao {
         userId = getUserId(userName);
         sql = "INSERT INTO income_category(category_name, user_id) VALUES(?,?)";
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, categoryName);
             preparedStatement.setInt(2, userId);
@@ -67,7 +67,7 @@ public class IncomeDao {
         sql = "SELECT category_id,category_name FROM income_category WHERE user_id=? OR user_id IS NULL";
         List<IncomeCategory> incomeCategoryList = new ArrayList<IncomeCategory>();
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             resultSet = preparedStatement.executeQuery();
@@ -90,7 +90,7 @@ public class IncomeDao {
         year = Integer.parseInt(daStrings[0]);
         month = Integer.parseInt(daStrings[1]);
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userName);
             preparedStatement.setInt(2, year);
@@ -117,7 +117,7 @@ public class IncomeDao {
         String sql = "SELECT SUM(income.income_amount ) FROM income INNER JOIN user_details ON income.user_id = user_details.user_id WHERE user_details.user_name =?";
         int income = 0;
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userName);
             resultSet = preparedStatement.executeQuery();
@@ -130,7 +130,6 @@ public class IncomeDao {
         return income;
     }
 
-
     public List<GraphData> getIncomesDataWithAmountAndCategory(String userName, String filterDate) {
         userId = getUserId(userName);
         List<GraphData> data = new ArrayList<GraphData>();
@@ -139,7 +138,7 @@ public class IncomeDao {
         int month = localDate.getMonthValue();
         String sql = "SELECT SUM(income.income_amount),income_category.category_name FROM income INNER JOIN income_category ON income.income_category = income_category.category_id WHERE income.user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY income_category.category_id";
         try {
-            Connection connection = DatabaseConnection.getConnection();
+            Connection connection = data.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, year);
@@ -169,7 +168,7 @@ public class IncomeDao {
         int month = localDate.getMonthValue();
         sql = "SELECT DAY(date),SUM(income.income_amount) FROM income  WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY income.income_category ,DAY(date) ";
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, year);
@@ -199,7 +198,7 @@ public class IncomeDao {
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, year);
@@ -224,7 +223,7 @@ public class IncomeDao {
     public int getUserId(String userName) {
         sql = "SELECT user_id FROM user_details WHERE user_name =?";
         try {
-            connection = DatabaseConnection.getConnection();
+            connection = data.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userName);
             resultSet = preparedStatement.executeQuery();
