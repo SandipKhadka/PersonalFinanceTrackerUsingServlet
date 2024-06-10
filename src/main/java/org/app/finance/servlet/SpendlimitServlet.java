@@ -45,7 +45,7 @@ public class SpendlimitServlet extends HttpServlet {
         spendLimit.setCategoryId(categoryId);
         SpendingLimitDao spendingLimitDao = new SpendingLimitDao();
         spendingLimitDao.addOrUpdateSpendingLimit(userName, spendLimit);
-        response.sendRedirect("dashboard");
+        response.sendRedirect("spendlimit");
     }
 
 }

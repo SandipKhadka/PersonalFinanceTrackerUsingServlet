@@ -100,6 +100,6 @@ public class ExpensesTransactionServlet extends HttpServlet {
             expenses.setRemarks(remarks);
             expensesDao.addExpanses(expenses, userName);
         }
-        response.sendRedirect("dashboard");
+        response.sendRedirect("expenses");
     }
 }

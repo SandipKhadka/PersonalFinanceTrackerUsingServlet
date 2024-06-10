@@ -78,6 +78,6 @@ public class IncomeTransactionServlet extends HttpServlet {
             income.setRemarks(remarks);
             incomeDao.addIncome(income, userName);
         }
-        response.sendRedirect("dashboard");
+        response.sendRedirect("income");
     }
 }

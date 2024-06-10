@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <%--    <link rel="stylesheet" href="css/expense_transaction.css">--%>
+    <link rel="stylesheet" href="css/expense_transaction.css">
     <title>Document</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
@@ -109,7 +109,7 @@
     <div class="expense-form">
         <form action="expenses" method="post">
             <h2>Add New Transaction</h2>
-            <input name="amount" placeholder="Enter the expenses amount" required/>
+            <input type="number" name="amount" placeholder="Enter amount" required/>
             <select name="categoryId" id="categoryId" required>
                 <option selected disabled value="">Select category</option>
                 <c:forEach var="category" items="${categoryNames}">
@@ -118,7 +118,7 @@
                     </option>`
                 </c:forEach>
             </select>
-            <input name="remarks" placeholder="Enter expenses remarks" required/>
+            <input type="text" name="remarks" placeholder="Enter expenses remarks" required/>
             <button type="submit" name="submit" value="addExpensesTransaction">
                 Add expenses
             </button>
