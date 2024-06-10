@@ -10,9 +10,9 @@ public class DatabaseConnection {
     public static Connection getConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String url = "jdbc:mysql://mysql-1811694f-kcc-f35b.a.aivencloud.com:26743/FinanceTracker";
-            String user = "avnadmin";
-            String pass = "AVNS_trZ5xJAGf3zShPRCasI";
+            String url = "jdbc:mysql://localhost/financetracker";
+            String user = "root";
+            String pass = "";
             con = DriverManager.getConnection(url, user, pass);
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();

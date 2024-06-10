@@ -119,6 +119,9 @@
         <input type="text" name="categoryName" placeholder="Enter new expenses category">
         <button type="submit" name="submit" value="addExpensesCategory">Add Expenses Category</button>
     </form>
+    <dir>
+        <span>${spendLimitError}</span>
+    </dir>
 </div>
 <div>
     <h1>Expenses</h1>

@@ -10,7 +10,7 @@
 </head>
 
 <body>
-<form action="login" method="get">
+<form action="login" method="post">
     <div class="imgcontainer">
         <!-- Add an image or logo here if needed -->
     </div>

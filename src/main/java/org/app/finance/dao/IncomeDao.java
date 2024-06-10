@@ -114,12 +114,18 @@ public class IncomeDao {
     }
 
     public int getIncomeAmount(String userName) {
-        String sql = "SELECT SUM(income.income_amount ) FROM income INNER JOIN user_details ON income.user_id = user_details.user_id WHERE user_details.user_name =?";
+        userId = getUserId(userName);
+        LocalDate localDate = LocalDate.now();
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
+        String sql = "SELECT SUM(income_amount ) FROM income  WHERE user_id=? AND YEAR(date) =? AND MONTH(date) =?";
         int income = 0;
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, userName);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, year);
+            preparedStatement.setInt(3, month);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 income = resultSet.getInt(1);
@@ -133,9 +139,9 @@ public class IncomeDao {
     public List<GraphData> getIncomesDataWithAmountAndCategory(String userName, String filterDate) {
         userId = getUserId(userName);
         List<GraphData> data = new ArrayList<GraphData>();
-        LocalDate localDate = LocalDate.now();
-        int year = localDate.getYear();
-        int month = localDate.getMonthValue();
+        daStrings = filterDate.split("-");
+        year = Integer.parseInt(daStrings[0]);
+        month = Integer.parseInt(daStrings[1]);
         String sql = "SELECT SUM(income.income_amount),income_category.category_name FROM income INNER JOIN income_category ON income.income_category = income_category.category_id WHERE income.user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY income_category.category_id";
         try {
             Connection connection = DatabaseConnection.getConnection();
@@ -163,9 +169,9 @@ public class IncomeDao {
     public List<GraphData> getIncomeByDay(String userName, String filterDate) {
         userId = getUserId(userName);
         List<GraphData> expensesByDay = new ArrayList<GraphData>();
-        LocalDate localDate = LocalDate.now();
-        int year = localDate.getYear();
-        int month = localDate.getMonthValue();
+        daStrings = filterDate.split("-");
+        year = Integer.parseInt(daStrings[0]);
+        month = Integer.parseInt(daStrings[1]);
         sql = "SELECT DAY(date),SUM(income.income_amount) FROM income  WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY income.income_category ,DAY(date) ";
         try {
             connection = DatabaseConnection.getConnection();
@@ -194,9 +200,9 @@ public class IncomeDao {
         userId = getUserId(userName);
         List<GraphData> graphData = new ArrayList<GraphData>();
         sql = "SELECT SUM(income.income_amount),income_category.category_name FROM income INNER JOIN income_category ON income.income_category = income_category.category_id WHERE income.user_id=? AND YEAR(DATE)=? AND MONTH(DATE)=? GROUP BY income.income_category ORDER BY SUM(income.income_amount) DESC LIMIT 5";
-        LocalDate localDate = LocalDate.now();
-        int year = localDate.getYear();
-        int month = localDate.getMonthValue();
+        daStrings = filterDate.split("-");
+        year = Integer.parseInt(daStrings[0]);
+        month = Integer.parseInt(daStrings[1]);
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
