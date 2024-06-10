@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/expense_transaction.css">
+    <%--    <link rel="stylesheet" href="css/expense_transaction.css">--%>
     <title>Document</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
@@ -109,36 +109,28 @@
     <div class="expense-form">
         <form action="expenses" method="post">
             <h2>Add New Transaction</h2>
-            <input
-                    name="amount"
-                    placeholder="Enter the expenses amount"
-                    required
-            />
+            <input name="amount" placeholder="Enter the expenses amount" required/>
             <select name="categoryId" id="categoryId" required>
                 <option selected disabled value="">Select category</option>
                 <c:forEach var="category" items="${categoryNames}">
-                    <option value="${category.categoryId}">
-                            ${category.categoryName}
-                    </option>
+                    `<option value="${category.categoryId}">
+                    ${category.categoryName}
+                    </option>`
                 </c:forEach>
             </select>
-            <input
-                    name="remarks"
-                    placeholder="Enter expenses remarks"
-                    required
-            />
+            <input name="remarks" placeholder="Enter expenses remarks" required/>
             <button type="submit" name="submit" value="addExpensesTransaction">
                 Add expenses
             </button>
         </form>
 
+        <div>
+            <span>${spendLimitError}</span>
+        </div>
+
         <form action="expenses" method="post">
             <h2>Add New Category</h2>
-            <input
-                    type="text"
-                    name="categoryName"
-                    placeholder="Enter new category"
-            />
+            <input type="text" name="categoryName" placeholder="Enter new category"/>
             <button type="submit" name="submit" value="addExpensesCategory">
                 Add Category
             </button>
@@ -184,4 +176,5 @@
 </div>
 </div>
 </body>
+
 </html>

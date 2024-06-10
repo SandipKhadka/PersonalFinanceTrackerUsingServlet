@@ -19,7 +19,7 @@ import java.util.List;
 public class SpendlimitServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
         String userName = (String) session.getAttribute("user");
         ExpensesDao expensesDao = new ExpensesDao();
         List<ExpensesCategory> expensesCategoryList = expensesDao.getExpensesCategory(userName);
