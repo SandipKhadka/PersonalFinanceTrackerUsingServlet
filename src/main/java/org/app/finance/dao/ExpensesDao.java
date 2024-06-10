@@ -113,13 +113,18 @@ public class ExpensesDao {
     }
 
     public int getExpensesAmount(String userName) {
+        LocalDate localDate = LocalDate.now();
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
         userId = getUserId(userName);
-        sql = "SELECT SUM(expenses.expenses_amount ) FROM expenses WHERE user_id=?";
+        sql = "SELECT SUM(expenses.expenses_amount ) FROM expenses WHERE user_id=? AND YEAR(date) =? AND MONTH(date) =?";
         int expenses = 0;
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, year);
+            preparedStatement.setInt(3, month);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 expenses = resultSet.getInt(1);
