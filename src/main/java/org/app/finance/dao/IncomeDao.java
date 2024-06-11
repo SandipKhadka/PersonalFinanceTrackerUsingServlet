@@ -30,7 +30,8 @@ public class IncomeDao {
         Time sqlTime = Time.valueOf(localTime);
         try {
             connection = DatabaseConnection.getConnection();
-            sql = "INSERT INTO income(income_amount, income_category, user_id, remarks, date, time) VALUES(?,?,?,?,CURDATE(),?)";
+            sql = "INSERT INTO income(income_amount, income_category, user_id, remarks, date, time) " +
+                    "VALUES(?,?,?,?,CURDATE(),?)";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, amount);
             preparedStatement.setInt(2, categoryId);
@@ -47,7 +48,8 @@ public class IncomeDao {
 
     public void addIncomeCategory(String categoryName, String userName) {
         userId = getUserId(userName);
-        sql = "INSERT INTO income_category(category_name, user_id) VALUES(?,?)";
+        sql = "INSERT INTO income_category(category_name, user_id) " +
+                "VALUES(?,?)";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -64,7 +66,9 @@ public class IncomeDao {
 
     public List<IncomeCategory> getIncomeCategory(String userName) {
         userId = getUserId(userName);
-        sql = "SELECT category_id,category_name FROM income_category WHERE user_id=? OR user_id IS NULL";
+        sql = "SELECT category_id,category_name " +
+                "FROM income_category " +
+                "WHERE user_id=? OR user_id IS NULL";
         List<IncomeCategory> incomeCategoryList = new ArrayList<IncomeCategory>();
         try {
             connection = DatabaseConnection.getConnection();
@@ -84,7 +88,11 @@ public class IncomeDao {
     }
 
     public List<Transaction> getIncomeTransaction(String userName, String filterDate) {
-        String sql = "SELECT income_amount,category_name,remarks,date,time FROM income INNER JOIN income_category ON income.income_category=income_category.category_id INNER JOIN user_details ON income.user_id = user_details.user_id WHERE user_name =? AND YEAR(date) =? AND MONTH(date) =?";
+        String sql = "SELECT income_amount,category_name,remarks,date,time " +
+                "FROM income " +
+                "INNER JOIN income_category ON income.income_category=income_category.category_id " +
+                "INNER JOIN user_details ON income.user_id = user_details.user_id " +
+                "WHERE user_name =? AND YEAR(date) =? AND MONTH(date) =?";
         List<Transaction> incomeTransactions = new ArrayList<Transaction>();
         daStrings = filterDate.split("-");
         year = Integer.parseInt(daStrings[0]);
@@ -118,7 +126,9 @@ public class IncomeDao {
         LocalDate localDate = LocalDate.now();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
-        String sql = "SELECT SUM(income_amount ) FROM income  WHERE user_id=? AND YEAR(date) =? AND MONTH(date) =?";
+        String sql = "SELECT SUM(income_amount ) " +
+                "FROM income " +
+                " WHERE user_id=? AND YEAR(date) =? AND MONTH(date) =?";
         int income = 0;
         try {
             connection = DatabaseConnection.getConnection();
@@ -142,7 +152,11 @@ public class IncomeDao {
         daStrings = filterDate.split("-");
         year = Integer.parseInt(daStrings[0]);
         month = Integer.parseInt(daStrings[1]);
-        String sql = "SELECT SUM(income.income_amount),income_category.category_name FROM income INNER JOIN income_category ON income.income_category = income_category.category_id WHERE income.user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY income_category.category_id";
+        String sql = "SELECT SUM(income.income_amount),income_category.category_name " +
+                "FROM income" +
+                " INNER JOIN income_category ON income.income_category = income_category.category_id" +
+                " WHERE income.user_id=? AND YEAR(date)=? AND MONTH(date)=? " +
+                "GROUP BY income_category.category_id";
         try {
             Connection connection = DatabaseConnection.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -172,7 +186,10 @@ public class IncomeDao {
         daStrings = filterDate.split("-");
         year = Integer.parseInt(daStrings[0]);
         month = Integer.parseInt(daStrings[1]);
-        sql = "SELECT DAY(date),SUM(income.income_amount) FROM income  WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY income.income_category ,DAY(date) ";
+        sql = "SELECT DAY(date),SUM(income.income_amount) " +
+                "FROM income  " +
+                "WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? " +
+                "GROUP BY income.income_category ,DAY(date) ";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -199,7 +216,12 @@ public class IncomeDao {
     public List<GraphData> getTopFiveIncomeByCategory(String userName, String filterDate) {
         userId = getUserId(userName);
         List<GraphData> graphData = new ArrayList<GraphData>();
-        sql = "SELECT SUM(income.income_amount),income_category.category_name FROM income INNER JOIN income_category ON income.income_category = income_category.category_id WHERE income.user_id=? AND YEAR(DATE)=? AND MONTH(DATE)=? GROUP BY income.income_category ORDER BY SUM(income.income_amount) DESC LIMIT 5";
+        sql = "SELECT SUM(income.income_amount),income_category.category_name " +
+                "FROM income " +
+                "INNER JOIN income_category ON income.income_category = income_category.category_id" +
+                " WHERE income.user_id=? AND YEAR(DATE)=? AND MONTH(DATE)=?" +
+                " GROUP BY income.income_category" +
+                " ORDER BY SUM(income.income_amount) DESC LIMIT 5";
         daStrings = filterDate.split("-");
         year = Integer.parseInt(daStrings[0]);
         month = Integer.parseInt(daStrings[1]);
@@ -227,7 +249,8 @@ public class IncomeDao {
     }
 
     public int getUserId(String userName) {
-        sql = "SELECT user_id FROM user_details WHERE user_name =?";
+        sql = "SELECT user_id FROM user_details" +
+                " WHERE user_name =?";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);

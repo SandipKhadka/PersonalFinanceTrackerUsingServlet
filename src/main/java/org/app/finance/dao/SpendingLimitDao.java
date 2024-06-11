@@ -23,7 +23,8 @@ public class SpendingLimitDao {
         userId = getUserId(userName);
         categoryId = spendLimit.getCategoryId();
         amount = spendLimit.getAmount();
-        sql = "INSERT INTO spending_limit(category_id, user_id, amount,date) values (?,?,?,CURDATE())";
+        sql = "INSERT INTO spending_limit(category_id, user_id, amount,date) " +
+                "VALUES (?,?,?,CURDATE())";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -45,7 +46,10 @@ public class SpendingLimitDao {
         LocalDate localDate = LocalDate.now();
         year = localDate.getYear();
         month = localDate.getMonthValue();
-        sql = "SELECT spending_limit.amount,expenses_category.category_name FROM spending_limit INNER JOIN expenses_category ON spending_limit.category_id = expenses_category.category_id WHERE spending_limit.user_id=? AND YEAR(date)=? AND MONTH(date)=?";
+        sql = "SELECT spending_limit.amount,expenses_category.category_name" +
+                " FROM spending_limit" +
+                " INNER JOIN expenses_category ON spending_limit.category_id = expenses_category.category_id " +
+                "WHERE spending_limit.user_id=? AND YEAR(date)=? AND MONTH(date)=?";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -75,7 +79,9 @@ public class SpendingLimitDao {
         LocalDate localDate = LocalDate.now();
         year = localDate.getYear();
         month = localDate.getMonthValue();
-        sql = "SELECT SUM(spending_limit.amount) FROM spending_limit WHERE user_id=? AND category_id=? AND year(date)=? AND MONTH(date)=?";
+        sql = "SELECT SUM(spending_limit.amount) " +
+                "FROM spending_limit" +
+                " WHERE user_id=? AND category_id=? AND year(date)=? AND MONTH(date)=?";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -98,7 +104,9 @@ public class SpendingLimitDao {
 
     public void updateSpendLimit(String userName, SpendLimit spendLimit) {
         userId = getUserId(userName);
-        sql = "UPDATE spending_limit SET amount=? WHERE user_id=? AND category_id=? AND YEAR(date)=? AND MONTH(date)=? ";
+        sql = "UPDATE spending_limit" +
+                " SET amount=? " +
+                "WHERE user_id=? AND category_id=? AND YEAR(date)=? AND MONTH(date)=? ";
         amount = spendLimit.getAmount();
         categoryId = spendLimit.getCategoryId();
         LocalDate localDate = LocalDate.now();
@@ -131,7 +139,8 @@ public class SpendingLimitDao {
         LocalDate localDate = LocalDate.now();
         year = localDate.getYear();
         month = localDate.getMonthValue();
-        sql = "SELECT id FROM spending_limit WHERE user_id=? AND category_id=? AND YEAR(date)=? AND MONTH(date)=?";
+        sql = "SELECT id FROM spending_limit" +
+                " WHERE user_id=? AND category_id=? AND YEAR(date)=? AND MONTH(date)=?";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -162,7 +171,8 @@ public class SpendingLimitDao {
     }
 
     public int getUserId(String userName) {
-        sql = "SELECT user_id FROM user_details WHERE user_name=? ";
+        sql = "SELECT user_id FROM user_details" +
+                " WHERE user_name=? ";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);

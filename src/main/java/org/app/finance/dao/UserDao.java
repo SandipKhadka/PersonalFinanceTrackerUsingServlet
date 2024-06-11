@@ -22,7 +22,8 @@ public class UserDao {
         userName = user.getUserName();
         hashedPassword = user.hashedPassword();
         int insertStatus = 0;
-        sql = "INSERT INTO user_details(first_name,last_name,user_name,password) VALUES(?,?,?,?)";
+        sql = "INSERT INTO user_details(first_name,last_name,user_name,password)" +
+                " VALUES(?,?,?,?)";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -48,7 +49,9 @@ public class UserDao {
 
     public boolean isUserNameAvailable(String userName) {
         int userNameStatus = 0;
-        sql = "SELECT COUNT(user_id) FROM user_details WHERE user_name =?";
+        sql = "SELECT COUNT(user_id)" +
+                " FROM user_details" +
+                " WHERE user_name =?";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -66,7 +69,9 @@ public class UserDao {
 
     public boolean isPasswordCorrect(String userName, long password) {
         int passwordStatus = 0;
-        sql = "SELECT COUNT(user_id) FROM user_details WHERE user_name =? AND password=?";
+        sql = "SELECT COUNT(user_id)" +
+                " FROM user_details" +
+                " WHERE user_name =? AND password=?";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
