@@ -1,4 +1,4 @@
-package org.app.finance.dao;
+package org.app.finance.database;
 
 import org.app.finance.config.DatabaseConnection;
 import org.app.finance.model.Login;

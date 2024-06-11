@@ -1,4 +1,4 @@
-package org.app.finance.dao;
+package org.app.finance.database;
 
 import org.app.finance.config.DatabaseConnection;
 import org.app.finance.model.SpendLimit;
@@ -139,7 +139,8 @@ public class SpendingLimitDao {
         LocalDate localDate = LocalDate.now();
         year = localDate.getYear();
         month = localDate.getMonthValue();
-        sql = "SELECT id FROM spending_limit" +
+        sql = "SELECT id " +
+                "FROM spending_limit" +
                 " WHERE user_id=? AND category_id=? AND YEAR(date)=? AND MONTH(date)=?";
         try {
             connection = DatabaseConnection.getConnection();

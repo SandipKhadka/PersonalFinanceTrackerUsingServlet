@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.app.finance.dao.UserDao;
+import org.app.finance.database.UserDao;
 import org.app.finance.model.Register;
 
 import java.io.IOException;

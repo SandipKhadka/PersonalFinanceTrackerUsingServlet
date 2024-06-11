@@ -7,8 +7,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.app.finance.dao.ExpensesDao;
-import org.app.finance.dao.SpendingLimitDao;
+import org.app.finance.database.ExpensesDao;
+import org.app.finance.database.SpendingLimitDao;
 import org.app.finance.model.ExpensesCategory;
 import org.app.finance.model.SpendLimit;
 

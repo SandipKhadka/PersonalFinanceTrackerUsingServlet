@@ -1,9 +1,9 @@
-package org.app.finance.dao;
+package org.app.finance.database;
 
 import org.app.finance.config.DatabaseConnection;
-import org.app.finance.model.Expenses;
-import org.app.finance.model.ExpensesCategory;
 import org.app.finance.model.GraphData;
+import org.app.finance.model.Income;
+import org.app.finance.model.IncomeCategory;
 import org.app.finance.model.Transaction;
 
 import java.sql.*;
@@ -12,31 +12,32 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExpensesDao {
-    PreparedStatement preparedStatement;
+public class IncomeDao {
+    int amount, categoryId, userId;
+    String remarks, sql;
     Connection connection;
+    PreparedStatement preparedStatement;
     ResultSet resultSet;
-    String sql, remarks;
-    int userId, categoryId, amount, year, month;
-    String[] dateStrings;
+    int month, year;
+    String[] daStrings;
 
-    public void addExpanses(Expenses expenses, String userName) {
-        amount = expenses.getAmount();
-        categoryId = expenses.getCategoryId();
-        remarks = expenses.getRemarks();
+    public void addIncome(Income income, String userName) {
+        amount = income.getAmount();
+        categoryId = income.getCategoryId();
+        remarks = income.getRemarks();
         userId = getUserId(userName);
         LocalTime localTime = LocalTime.now();
-        Time time = Time.valueOf(localTime);
-        sql = "INSERT INTO expenses(expenses_amount,expenses_category,user_id,remarks,date,time) " +
-                "VALUES (?,?,?,?,curdate(),?)";
+        Time sqlTime = Time.valueOf(localTime);
         try {
             connection = DatabaseConnection.getConnection();
+            sql = "INSERT INTO income(income_amount, income_category, user_id, remarks, date, time) " +
+                    "VALUES(?,?,?,?,CURDATE(),?)";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, amount);
             preparedStatement.setInt(2, categoryId);
             preparedStatement.setInt(3, userId);
             preparedStatement.setString(4, remarks);
-            preparedStatement.setTime(5, time);
+            preparedStatement.setTime(5, sqlTime);
             preparedStatement.executeUpdate();
             connection.close();
             preparedStatement.close();
@@ -45,9 +46,9 @@ public class ExpensesDao {
         }
     }
 
-    public void addExpensesCategory(String categoryName, String userName) {
+    public void addIncomeCategory(String categoryName, String userName) {
         userId = getUserId(userName);
-        sql = "INSERT INTO expenses_category(category_name, user_id) " +
+        sql = "INSERT INTO income_category(category_name, user_id) " +
                 "VALUES(?,?)";
         try {
             connection = DatabaseConnection.getConnection();
@@ -63,38 +64,39 @@ public class ExpensesDao {
         }
     }
 
-    public List<ExpensesCategory> getExpensesCategory(String userName) {
+    public List<IncomeCategory> getIncomeCategory(String userName) {
         userId = getUserId(userName);
-        sql = "SELECT category_id, category_name " +
-                "FROM expenses_category " +
+        sql = "SELECT category_id,category_name " +
+                "FROM income_category " +
                 "WHERE user_id=? OR user_id IS NULL";
-        List<ExpensesCategory> expensesCategoryList = new ArrayList<ExpensesCategory>();
+        List<IncomeCategory> incomeCategoryList = new ArrayList<IncomeCategory>();
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                ExpensesCategory expensesCategory = new ExpensesCategory();
-                expensesCategory.setCategoryId(resultSet.getInt(1));
-                expensesCategory.setCategoryName(resultSet.getString(2));
-                expensesCategoryList.add(expensesCategory);
+                IncomeCategory incomeCategory = new IncomeCategory();
+                incomeCategory.setCategoryId(resultSet.getInt(1));
+                incomeCategory.setCategoryName(resultSet.getString(2));
+                incomeCategoryList.add(incomeCategory);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return expensesCategoryList;
+        return incomeCategoryList;
     }
 
-    public List<Transaction> getExpensesTransaction(String userName, String filterDate) {
-        String sql = "SELECT expenses_amount,category_name,remarks,date,time FROM expenses" +
-                " INNER JOIN expenses_category ON expenses.expenses_category=expenses_category.category_id " +
-                "INNER JOIN user_details ON expenses.user_id = user_details.user_id " +
+    public List<Transaction> getIncomeTransaction(String userName, String filterDate) {
+        String sql = "SELECT income_amount,category_name,remarks,date,time " +
+                "FROM income " +
+                "INNER JOIN income_category ON income.income_category=income_category.category_id " +
+                "INNER JOIN user_details ON income.user_id = user_details.user_id " +
                 "WHERE user_name =? AND YEAR(date) =? AND MONTH(date) =?";
-        dateStrings = filterDate.split("-");
-        year = Integer.parseInt(dateStrings[0]);
-        month = Integer.parseInt(dateStrings[1]);
-        List<Transaction> expensesTransactions = new ArrayList<Transaction>();
+        List<Transaction> incomeTransactions = new ArrayList<Transaction>();
+        daStrings = filterDate.split("-");
+        year = Integer.parseInt(daStrings[0]);
+        month = Integer.parseInt(daStrings[1]);
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -109,25 +111,25 @@ public class ExpensesDao {
                 transaction.setRemarks(resultSet.getString(3));
                 transaction.setDate(resultSet.getDate(4));
                 transaction.setTime(resultSet.getTime(5));
-                expensesTransactions.add(transaction);
+                incomeTransactions.add(transaction);
             }
             connection.close();
             preparedStatement.close();
         } catch (SQLException e) {
             e.getSQLState();
         }
-        return expensesTransactions;
+        return incomeTransactions;
     }
 
-    public int getExpensesAmount(String userName) {
+    public int getIncomeAmount(String userName) {
+        userId = getUserId(userName);
         LocalDate localDate = LocalDate.now();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
-        userId = getUserId(userName);
-        sql = "SELECT SUM(expenses.expenses_amount ) " +
-                "FROM expenses " +
-                "WHERE user_id=? AND YEAR(date) =? AND MONTH(date) =?";
-        int expenses = 0;
+        String sql = "SELECT SUM(income_amount ) " +
+                "FROM income " +
+                " WHERE user_id=? AND YEAR(date) =? AND MONTH(date) =?";
+        int income = 0;
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -136,53 +138,25 @@ public class ExpensesDao {
             preparedStatement.setInt(3, month);
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                expenses = resultSet.getInt(1);
+                income = resultSet.getInt(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return expenses;
+        return income;
     }
 
-    public int getSumOfExpenses(String userName, int categoryId) {
-        int expensesAmount = 0;
-        userId = getUserId(userName);
-        LocalDate localDate = LocalDate.now();
-        int year = localDate.getYear();
-        int month = localDate.getMonthValue();
-        sql = "SELECT SUM(expenses.expenses_amount) F" +
-                "ROM expenses " +
-                "WHERE user_id=? AND expenses_category=? AND year(date)=? AND MONTH(date)=?";
-        try {
-            connection = DatabaseConnection.getConnection();
-            preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, categoryId);
-            preparedStatement.setInt(3, year);
-            preparedStatement.setInt(4, month);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                expensesAmount = resultSet.getInt(1);
-            }
-            connection.close();
-            preparedStatement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("expenses sum");
-        }
-        return expensesAmount;
-    }
-
-    public List<GraphData> getExpensesDataWithAmountAndCategory(String userName, String filterDate) {
+    public List<GraphData> getIncomesDataWithAmountAndCategory(String userName, String filterDate) {
         userId = getUserId(userName);
         List<GraphData> data = new ArrayList<GraphData>();
-        dateStrings = filterDate.split("-");
-        year = Integer.parseInt(dateStrings[0]);
-        month = Integer.parseInt(dateStrings[1]);
-        String sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name " +
-                "FROM expenses " +
-                "INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id " +
-                "WHERE expenses.user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses_category.category_id";
+        daStrings = filterDate.split("-");
+        year = Integer.parseInt(daStrings[0]);
+        month = Integer.parseInt(daStrings[1]);
+        String sql = "SELECT SUM(income.income_amount),income_category.category_name " +
+                "FROM income" +
+                " INNER JOIN income_category ON income.income_category = income_category.category_id" +
+                " WHERE income.user_id=? AND YEAR(date)=? AND MONTH(date)=? " +
+                "GROUP BY income_category.category_id";
         try {
             Connection connection = DatabaseConnection.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -206,15 +180,16 @@ public class ExpensesDao {
         return data;
     }
 
-    public List<GraphData> getExpensesByDay(String userName, String filterDate) {
+    public List<GraphData> getIncomeByDay(String userName, String filterDate) {
         userId = getUserId(userName);
         List<GraphData> expensesByDay = new ArrayList<GraphData>();
-        dateStrings = filterDate.split("-");
-        year = Integer.parseInt(dateStrings[0]);
-        month = Integer.parseInt(dateStrings[1]);
-        sql = "SELECT DAY(date),SUM(expenses.expenses_amount) " +
-                "FROM expenses " +
-                " WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses.expenses_category ,DAY(date) ";
+        daStrings = filterDate.split("-");
+        year = Integer.parseInt(daStrings[0]);
+        month = Integer.parseInt(daStrings[1]);
+        sql = "SELECT DAY(date),SUM(income.income_amount) " +
+                "FROM income  " +
+                "WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? " +
+                "GROUP BY income.income_category ,DAY(date) ";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -238,18 +213,18 @@ public class ExpensesDao {
         return expensesByDay;
     }
 
-    public List<GraphData> getTopFiveExpensesByCategory(String userName, String filterDate) {
+    public List<GraphData> getTopFiveIncomeByCategory(String userName, String filterDate) {
         userId = getUserId(userName);
         List<GraphData> graphData = new ArrayList<GraphData>();
-        sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name " +
-                "FROM expenses " +
-                "INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id " +
-                "WHERE expenses.user_id=? AND YEAR(DATE)=? AND MONTH(DATE)=? " +
-                "GROUP BY expenses.expenses_category " +
-                "ORDER BY SUM(expenses.expenses_amount) DESC LIMIT 5";
-        dateStrings = filterDate.split("-");
-        year = Integer.parseInt(dateStrings[0]);
-        month = Integer.parseInt(dateStrings[1]);
+        sql = "SELECT SUM(income.income_amount),income_category.category_name " +
+                "FROM income " +
+                "INNER JOIN income_category ON income.income_category = income_category.category_id" +
+                " WHERE income.user_id=? AND YEAR(DATE)=? AND MONTH(DATE)=?" +
+                " GROUP BY income.income_category" +
+                " ORDER BY SUM(income.income_amount) DESC LIMIT 5";
+        daStrings = filterDate.split("-");
+        year = Integer.parseInt(daStrings[0]);
+        month = Integer.parseInt(daStrings[1]);
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -274,10 +249,9 @@ public class ExpensesDao {
     }
 
     public int getUserId(String userName) {
+        sql = "SELECT user_id FROM user_details" +
+                " WHERE user_name =?";
         try {
-            sql = "SELECT user_id " +
-                    "FROM user_details " +
-                    "WHERE user_name=? ";
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userName);
@@ -285,8 +259,6 @@ public class ExpensesDao {
             if (resultSet.next()) {
                 userId = resultSet.getInt(1);
             }
-            connection.close();
-            preparedStatement.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
