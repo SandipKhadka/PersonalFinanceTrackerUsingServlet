@@ -44,20 +44,17 @@
         function drawChart() {
 
             var data = new google.visualization.DataTable();
-            data.addColumn('number', 'Day');
+            data.addColumn('string', 'Day');
             data.addColumn('number', 'Amount');
             <c:forEach var="expenses" items="${expensesByDay}">
             data.addRows([
-                [${expenses.day}, ${expenses.amount}]
+                ['${expenses.day}', ${expenses.amount}]
             ]);
             </c:forEach>
             var options = {
-                title: "Expense by Day",
-                subtitle: "in millions of dollars (USD)",
-                width: 400,
-                height: 300,
-                backgroundColor: "#333",
-                colors: ["#f5a623"],
+                title: 'Expenses by day',
+                curveType: 'function',
+                legend: {position: 'bottom'}
             };
 
             var chart = new google.charts.Line(document.getElementById('expenses-by-day'));
@@ -75,7 +72,7 @@
             data.addColumn('number', 'Amount');
             data.addColumn({role: "style"});
             <c:forEach var="expenses" items="${topFiveCategory}">
-            data.addRow(['${expenses.name}', ${expenses.amount}, 'blue']);
+            data.addRow(['${expenses.name}', ${expenses.amount}, 'green']);
             </c:forEach>
 
             var view = new google.visualization.DataView(data);
@@ -151,7 +148,8 @@
     <h2>Transactions</h2>
     <div class="filter-section">
         <form action="expenses" method="get">
-            <input type="month" name="filterDate"/>
+            <input type="month" name="startFilterDate"/>
+            <input type="month" name="endFilterDate">
             <button type="submit">Filter</button>
         </form>
     </div>

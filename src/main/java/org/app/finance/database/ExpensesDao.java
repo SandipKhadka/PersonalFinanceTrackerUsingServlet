@@ -17,8 +17,8 @@ public class ExpensesDao {
     Connection connection;
     ResultSet resultSet;
     String sql, remarks;
-    int userId, categoryId, amount, year, month;
-    String[] dateStrings;
+    int userId, categoryId, amount, startYear, startMonth, endYear, endMonth;
+    String[] startDateString, endDateString;
 
     public void addExpanses(Expenses expenses, String userName) {
         amount = expenses.getAmount();
@@ -86,22 +86,35 @@ public class ExpensesDao {
         return expensesCategoryList;
     }
 
-    public List<Transaction> getExpensesTransaction(String userName, String filterDate) {
+    public List<Transaction> getExpensesTransaction(String userName, String startFilterDsate, String endFilterDate) {
+        userId = getUserId(userName);
         String sql = "SELECT expenses_amount,category_name,remarks,date,time " +
                 "FROM expenses" +
                 " INNER JOIN expenses_category ON expenses.expenses_category=expenses_category.category_id " +
-                "INNER JOIN user_details ON expenses.user_id = user_details.user_id " +
-                "WHERE user_name =? AND YEAR(date) =? AND MONTH(date) =?";
-        dateStrings = filterDate.split("-");
-        year = Integer.parseInt(dateStrings[0]);
-        month = Integer.parseInt(dateStrings[1]);
+                "WHERE( expenses.user_id =? " +
+                "AND YEAR(date) >=? AND MONTH(date) >=?  AND YEAR(date) <=? AND MONTH(date) <=?)" +
+                "OR (expenses.user_id=? AND  YEAR(date)=? AND MONTH(date)=?)";
+        startDateString = startFilterDsate.split("-");
+        startYear = Integer.parseInt(startDateString[0]);
+        startMonth = Integer.parseInt(startDateString[1]);
+        if (endFilterDate != null && !endFilterDate.isEmpty()) {
+            endDateString = endFilterDate.split("-");
+            endYear = Integer.parseInt(endDateString[0]);
+            endMonth = Integer.parseInt(endDateString[1]);
+
+        }
         List<Transaction> expensesTransactions = new ArrayList<Transaction>();
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, userName);
-            preparedStatement.setInt(2, year);
-            preparedStatement.setInt(3, month);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, startYear);
+            preparedStatement.setInt(3, startMonth);
+            preparedStatement.setInt(4, endYear);
+            preparedStatement.setInt(5, endMonth);
+            preparedStatement.setInt(6, userId);
+            preparedStatement.setInt(7, startYear);
+            preparedStatement.setInt(8, startMonth);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Transaction transaction = new Transaction();
@@ -145,6 +158,7 @@ public class ExpensesDao {
         return expenses;
     }
 
+    // this method is for checking spending limit
     public int getSumOfExpenses(String userName, int categoryId) {
         int expensesAmount = 0;
         userId = getUserId(userName);
@@ -174,22 +188,35 @@ public class ExpensesDao {
         return expensesAmount;
     }
 
-    public List<GraphData> getExpensesDataWithAmountAndCategory(String userName, String filterDate) {
+    public List<GraphData> getExpensesDataWithAmountAndCategory(String userName, String startFilterDate, String endFilterDate) {
         userId = getUserId(userName);
         List<GraphData> data = new ArrayList<GraphData>();
-        dateStrings = filterDate.split("-");
-        year = Integer.parseInt(dateStrings[0]);
-        month = Integer.parseInt(dateStrings[1]);
+        startDateString = startFilterDate.split("-");
+        startYear = Integer.parseInt(startDateString[0]);
+        startMonth = Integer.parseInt(startDateString[1]);
+
+        if (endFilterDate != null && !endFilterDate.isEmpty()) {
+            endDateString = endFilterDate.split("-");
+            endYear = Integer.parseInt(endDateString[0]);
+            endMonth = Integer.parseInt(endDateString[1]);
+        }
         String sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name " +
                 "FROM expenses " +
                 "INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id " +
-                "WHERE expenses.user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses_category.category_id";
+                "WHERE (expenses.user_id=? AND YEAR(date)>=? AND MONTH(date)>=? AND YEAR(date)<=? AND MONTH(date)<+?)" +
+                "OR (expenses.user_id=? AND YEAR(date)=? AND MONTH(date)=?)" +
+                " GROUP BY expenses_category.category_id";
         try {
             Connection connection = DatabaseConnection.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, year);
-            preparedStatement.setInt(3, month);
+            preparedStatement.setInt(2, startYear);
+            preparedStatement.setInt(3, startMonth);
+            preparedStatement.setInt(4, endYear);
+            preparedStatement.setInt(5, endMonth);
+            preparedStatement.setInt(6, userId);
+            preparedStatement.setInt(7, startYear);
+            preparedStatement.setInt(8, startMonth);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 GraphData graphTransaction = new GraphData();
@@ -207,21 +234,34 @@ public class ExpensesDao {
         return data;
     }
 
-    public List<GraphData> getExpensesByDay(String userName, String filterDate) {
+    public List<GraphData> getExpensesByDay(String userName, String startFilterDate, String endFilterDate) {
         userId = getUserId(userName);
         List<GraphData> expensesByDay = new ArrayList<GraphData>();
-        dateStrings = filterDate.split("-");
-        year = Integer.parseInt(dateStrings[0]);
-        month = Integer.parseInt(dateStrings[1]);
+        startDateString = startFilterDate.split("-");
+        startYear = Integer.parseInt(startDateString[0]);
+        startMonth = Integer.parseInt(startDateString[1]);
+
+        if (endFilterDate != null && !endFilterDate.isEmpty()) {
+            endDateString = endFilterDate.split("-");
+            endYear = Integer.parseInt(endDateString[0]);
+            endMonth = Integer.parseInt(endDateString[1]);
+        }
         sql = "SELECT DAY(date),SUM(expenses.expenses_amount) " +
                 "FROM expenses " +
-                " WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? GROUP BY expenses.expenses_category ,DAY(date) ";
+                " WHERE (user_id=? AND YEAR(date)>=? AND MONTH(date)>=? AND YEAR(date)<=? AND MONTH(date)<=?)" +
+                "OR (user_id=? AND YEAR(date)=? AND MONTH(date)=?)" +
+                " GROUP BY DAY(date) ";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, year);
-            preparedStatement.setInt(3, month);
+            preparedStatement.setInt(2, startYear);
+            preparedStatement.setInt(3, startMonth);
+            preparedStatement.setInt(4, endYear);
+            preparedStatement.setInt(5, endMonth);
+            preparedStatement.setInt(6, userId);
+            preparedStatement.setInt(7, startYear);
+            preparedStatement.setInt(8, startMonth);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 GraphData graphTransaction = new GraphData();
@@ -239,24 +279,36 @@ public class ExpensesDao {
         return expensesByDay;
     }
 
-    public List<GraphData> getTopFiveExpensesByCategory(String userName, String filterDate) {
+    public List<GraphData> getTopFiveExpensesByCategory(String userName, String startFilterDate, String endFilterDate) {
         userId = getUserId(userName);
         List<GraphData> graphData = new ArrayList<GraphData>();
         sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name " +
                 "FROM expenses " +
                 "INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id " +
-                "WHERE expenses.user_id=? AND YEAR(DATE)=? AND MONTH(DATE)=? " +
+                "WHERE (expenses.user_id=? AND YEAR(DATE)>=? AND MONTH(DATE)>=? AND YEAR(date)<=? AND MONTH(date)<=?)" +
+                "OR (expenses.user_id=? AND YEAR(date)=? AND MONTH(date)=?)" +
                 "GROUP BY expenses.expenses_category " +
                 "ORDER BY SUM(expenses.expenses_amount) DESC LIMIT 5";
-        dateStrings = filterDate.split("-");
-        year = Integer.parseInt(dateStrings[0]);
-        month = Integer.parseInt(dateStrings[1]);
+        startDateString = startFilterDate.split("-");
+        startYear = Integer.parseInt(startDateString[0]);
+        startMonth = Integer.parseInt(startDateString[1]);
+
+        if (endFilterDate != null && !endFilterDate.isEmpty()) {
+            endDateString = endFilterDate.split("-");
+            endYear = Integer.parseInt(endDateString[0]);
+            endMonth = Integer.parseInt(endDateString[1]);
+        }
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, year);
-            preparedStatement.setInt(3, month);
+            preparedStatement.setInt(2, startYear);
+            preparedStatement.setInt(3, startMonth);
+            preparedStatement.setInt(4, endYear);
+            preparedStatement.setInt(5, endMonth);
+            preparedStatement.setInt(6, userId);
+            preparedStatement.setInt(7, startYear);
+            preparedStatement.setInt(8, startMonth);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 GraphData graphTransaction = new GraphData();

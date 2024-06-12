@@ -37,14 +37,14 @@ public class DashboardServlet extends HttpServlet {
         int netIncome = income - expenses;
         request.setAttribute("netIncome", netIncome);
 
-        List<GraphData> transactions = expensesDao.getExpensesDataWithAmountAndCategory(userName, stringDate);
+        List<GraphData> transactions = expensesDao.getExpensesDataWithAmountAndCategory(userName, stringDate, null);
         request.setAttribute("pieChartData", transactions);
         transactions.forEach(System.out::println);
 
-        List<GraphData> graphDataByDay = expensesDao.getExpensesByDay(userName, stringDate);
+        List<GraphData> graphDataByDay = expensesDao.getExpensesByDay(userName, stringDate, null);
         request.setAttribute("expensesByDay", graphDataByDay);
 
-        List<GraphData> topFiveCategory = expensesDao.getTopFiveExpensesByCategory(userName, stringDate);
+        List<GraphData> topFiveCategory = expensesDao.getTopFiveExpensesByCategory(userName, stringDate, null);
         request.setAttribute("topFiveCategory", topFiveCategory);
 
         RequestDispatcher requestDispatcher = request.getRequestDispatcher("user_dashboard.jsp");

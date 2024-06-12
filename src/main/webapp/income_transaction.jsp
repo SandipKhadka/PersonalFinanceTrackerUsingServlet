@@ -161,7 +161,8 @@
         <h2>Transactions</h2>
         <div class="filter-section">
             <form action="income" method="get">
-                <input type="month" name="filterDate"/>
+                <input type="month" name="startFilterDate"/>
+                <input type="month" name="endFilterDate">
                 <button type="submit">Filter</button>
             </form>
         </div>

@@ -18,8 +18,8 @@ public class IncomeDao {
     Connection connection;
     PreparedStatement preparedStatement;
     ResultSet resultSet;
-    int month, year;
-    String[] daStrings;
+    int startMonth, startYear, endMonth, endYear;
+    String[] startDateString, endDateString;
 
     public void addIncome(Income income, String userName) {
         amount = income.getAmount();
@@ -87,22 +87,34 @@ public class IncomeDao {
         return incomeCategoryList;
     }
 
-    public List<Transaction> getIncomeTransaction(String userName, String filterDate) {
+    public List<Transaction> getIncomeTransaction(String userName, String startFilterDate, String endFilterDAte) {
+        userId = getUserId(userName);
         String sql = "SELECT income_amount,category_name,remarks,date,time " +
                 "FROM income " +
                 "INNER JOIN income_category ON income.income_category=income_category.category_id " +
-                "INNER JOIN user_details ON income.user_id = user_details.user_id " +
-                "WHERE user_name =? AND YEAR(date) =? AND MONTH(date) =?";
+                "WHERE (income.user_id =? AND YEAR(date) >=? AND MONTH(date) >=? AND YEAR(date) <=? AND MONTH(date) <=?)" +
+                "OR (income.user_id=? AND YEAR(date)=? AND MONTH(date)=?)";
         List<Transaction> incomeTransactions = new ArrayList<Transaction>();
-        daStrings = filterDate.split("-");
-        year = Integer.parseInt(daStrings[0]);
-        month = Integer.parseInt(daStrings[1]);
+        startDateString = startFilterDate.split("-");
+        startYear = Integer.parseInt(startDateString[0]);
+        startMonth = Integer.parseInt(startDateString[1]);
+
+        if (endFilterDAte != null && !endFilterDAte.isEmpty()) {
+            endDateString = endFilterDAte.split("-");
+            endYear = Integer.parseInt(endDateString[0]);
+            endMonth = Integer.parseInt(endDateString[1]);
+        }
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, userName);
-            preparedStatement.setInt(2, year);
-            preparedStatement.setInt(3, month);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, startYear);
+            preparedStatement.setInt(3, startMonth);
+            preparedStatement.setInt(4, endYear);
+            preparedStatement.setInt(5, endMonth);
+            preparedStatement.setInt(6, userId);
+            preparedStatement.setInt(7, startYear);
+            preparedStatement.setInt(8, startMonth);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Transaction transaction = new Transaction();
@@ -146,23 +158,36 @@ public class IncomeDao {
         return income;
     }
 
-    public List<GraphData> getIncomesDataWithAmountAndCategory(String userName, String filterDate) {
+    public List<GraphData> getIncomesDataWithAmountAndCategory(String userName, String startFilterDate, String endFilterDate) {
         userId = getUserId(userName);
         List<GraphData> data = new ArrayList<GraphData>();
-        daStrings = filterDate.split("-");
-        year = Integer.parseInt(daStrings[0]);
-        month = Integer.parseInt(daStrings[1]);
+        startDateString = startFilterDate.split("-");
+        startYear = Integer.parseInt(startDateString[0]);
+        startMonth = Integer.parseInt(startDateString[1]);
+
+        if (endFilterDate != null && !endFilterDate.isEmpty()) {
+            endDateString = endFilterDate.split("-");
+            endYear = Integer.parseInt(endDateString[0]);
+            endMonth = Integer.parseInt(endDateString[1]);
+        }
+
         String sql = "SELECT SUM(income.income_amount),income_category.category_name " +
                 "FROM income" +
                 " INNER JOIN income_category ON income.income_category = income_category.category_id" +
-                " WHERE income.user_id=? AND YEAR(date)=? AND MONTH(date)=? " +
+                " WHERE (income.user_id=? AND YEAR(date)>=? AND MONTH(date)>=? AND YEAR(date)<=? AND MONTH(date)<=?)" +
+                "OR (income.user_id=? AND YEAR(date)=? AND MONTH(date)=?) " +
                 "GROUP BY income_category.category_id";
         try {
             Connection connection = DatabaseConnection.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, year);
-            preparedStatement.setInt(3, month);
+            preparedStatement.setInt(2, startYear);
+            preparedStatement.setInt(3, startMonth);
+            preparedStatement.setInt(4, endYear);
+            preparedStatement.setInt(5, endMonth);
+            preparedStatement.setInt(6, userId);
+            preparedStatement.setInt(7, startYear);
+            preparedStatement.setInt(8, startMonth);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 GraphData graphTransaction = new GraphData();
@@ -180,22 +205,35 @@ public class IncomeDao {
         return data;
     }
 
-    public List<GraphData> getIncomeByDay(String userName, String filterDate) {
+    public List<GraphData> getIncomeByDay(String userName, String startFilterDate, String endFilterDate) {
         userId = getUserId(userName);
         List<GraphData> expensesByDay = new ArrayList<GraphData>();
-        daStrings = filterDate.split("-");
-        year = Integer.parseInt(daStrings[0]);
-        month = Integer.parseInt(daStrings[1]);
+        startDateString = startFilterDate.split("-");
+        startYear = Integer.parseInt(startDateString[0]);
+        startMonth = Integer.parseInt(startDateString[1]);
+
+        if (endFilterDate != null && !endFilterDate.isEmpty()) {
+            endDateString = endFilterDate.split("-");
+            endYear = Integer.parseInt(endDateString[0]);
+            endMonth = Integer.parseInt(endDateString[1]);
+        }
+
         sql = "SELECT DAY(date),SUM(income.income_amount) " +
                 "FROM income  " +
-                "WHERE user_id=? AND YEAR(date)=? AND MONTH(date)=? " +
-                "GROUP BY income.income_category ,DAY(date) ";
+                "WHERE (user_id=? AND YEAR(date)>=? AND MONTH(date)<=? AND YEAR(date)<=? AND MONTH(date)<=?)" +
+                "OR (user_id=? AND YEAR(date)=? AND MONTH(date)=?) " +
+                "GROUP BY DAY(date) ";
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, year);
-            preparedStatement.setInt(3, month);
+            preparedStatement.setInt(2, startYear);
+            preparedStatement.setInt(3, startMonth);
+            preparedStatement.setInt(4, endYear);
+            preparedStatement.setInt(5, endMonth);
+            preparedStatement.setInt(6, userId);
+            preparedStatement.setInt(7, startYear);
+            preparedStatement.setInt(8, startMonth);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 GraphData graphTransaction = new GraphData();
@@ -213,24 +251,37 @@ public class IncomeDao {
         return expensesByDay;
     }
 
-    public List<GraphData> getTopFiveIncomeByCategory(String userName, String filterDate) {
+    public List<GraphData> getTopFiveIncomeByCategory(String userName, String startFilterDate, String endFilterDate) {
         userId = getUserId(userName);
         List<GraphData> graphData = new ArrayList<GraphData>();
         sql = "SELECT SUM(income.income_amount),income_category.category_name " +
                 "FROM income " +
                 "INNER JOIN income_category ON income.income_category = income_category.category_id" +
-                " WHERE income.user_id=? AND YEAR(DATE)=? AND MONTH(DATE)=?" +
+                " WHERE( income.user_id=? AND YEAR(DATE)>=? AND MONTH(DATE)>=? AND YEAR(date)<=? AND MONTH(date)<=?)" +
+                "OR (income.user_id=? AND YEAR(date)=? AND MONTH(date)=?)" +
                 " GROUP BY income.income_category" +
                 " ORDER BY SUM(income.income_amount) DESC LIMIT 5";
-        daStrings = filterDate.split("-");
-        year = Integer.parseInt(daStrings[0]);
-        month = Integer.parseInt(daStrings[1]);
+        startDateString = startFilterDate.split("-");
+        startYear = Integer.parseInt(startDateString[0]);
+        startMonth = Integer.parseInt(startDateString[1]);
+
+        if (endFilterDate != null && !endFilterDate.isEmpty()) {
+            endDateString = endFilterDate.split("-");
+            endYear = Integer.parseInt(endDateString[0]);
+            endMonth = Integer.parseInt(endDateString[1]);
+        }
+
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, year);
-            preparedStatement.setInt(3, month);
+            preparedStatement.setInt(2, startYear);
+            preparedStatement.setInt(3, startMonth);
+            preparedStatement.setInt(4, endYear);
+            preparedStatement.setInt(5, endMonth);
+            preparedStatement.setInt(6, userId);
+            preparedStatement.setInt(7, startYear);
+            preparedStatement.setInt(8, startMonth);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 GraphData graphTransaction = new GraphData();

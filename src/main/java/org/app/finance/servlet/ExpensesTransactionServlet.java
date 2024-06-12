@@ -32,21 +32,22 @@ public class ExpensesTransactionServlet extends HttpServlet {
 
         // get income transactions
         LocalDate localDate = LocalDate.now();
-        String filterDate = request.getParameter("filterDate");
-        if (filterDate == null || filterDate.isEmpty()) {
-            filterDate = localDate.toString();
+        String startFilterDate = request.getParameter("startFilterDate");
+        String endFilterDate = request.getParameter("endFilterDate");
+        if (startFilterDate == null || startFilterDate.isEmpty()) {
+            startFilterDate = localDate.toString();
         }
-        List<Transaction> transactions = expensesDao.getExpensesTransaction(userName, filterDate);
+        List<Transaction> transactions = expensesDao.getExpensesTransaction(userName, startFilterDate, endFilterDate);
         request.setAttribute("transactions", transactions);
 
-        List<GraphData> graphTransaction = expensesDao.getExpensesDataWithAmountAndCategory(userName, filterDate);
+        List<GraphData> graphTransaction = expensesDao.getExpensesDataWithAmountAndCategory(userName, startFilterDate, endFilterDate);
         request.setAttribute("pieChartData", graphTransaction);
         graphTransaction.forEach(System.out::println);
 
-        List<GraphData> graphDataByDay = expensesDao.getExpensesByDay(userName, filterDate);
+        List<GraphData> graphDataByDay = expensesDao.getExpensesByDay(userName, startFilterDate, endFilterDate);
         request.setAttribute("expensesByDay", graphDataByDay);
 
-        List<GraphData> topFiveCategory = expensesDao.getTopFiveExpensesByCategory(userName, filterDate);
+        List<GraphData> topFiveCategory = expensesDao.getTopFiveExpensesByCategory(userName, startFilterDate, endFilterDate);
         request.setAttribute("topFiveCategory", topFiveCategory);
 
 

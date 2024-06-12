@@ -29,24 +29,25 @@ public class IncomeTransactionServlet extends HttpServlet {
         request.setAttribute("categoryNames", incomeCategoryList);
 
         // getting income transactions
-        String filterDate = request.getParameter("filterDate");
+        String startFilterDate = request.getParameter("startFilterDate");
+        String endFilterDate = request.getParameter("endFilterDate");
 
         LocalDate localDate = LocalDate.now();
-        if (filterDate == null || filterDate.isEmpty()) {
-            filterDate = localDate.toString();
+        if (startFilterDate == null || startFilterDate.isEmpty()) {
+            startFilterDate = localDate.toString();
         }
 
-        List<Transaction> transactions = incomeDao.getIncomeTransaction(userName, filterDate);
+        List<Transaction> transactions = incomeDao.getIncomeTransaction(userName, startFilterDate, endFilterDate);
         request.setAttribute("transactions", transactions);
 
-        List<GraphData> graphTransaction = incomeDao.getIncomesDataWithAmountAndCategory(userName, filterDate);
+        List<GraphData> graphTransaction = incomeDao.getIncomesDataWithAmountAndCategory(userName, startFilterDate, endFilterDate);
         request.setAttribute("pieChartData", graphTransaction);
         graphTransaction.forEach(System.out::println);
 
-        List<GraphData> graphDataByDay = incomeDao.getIncomeByDay(userName, filterDate);
+        List<GraphData> graphDataByDay = incomeDao.getIncomeByDay(userName, startFilterDate, endFilterDate);
         request.setAttribute("incomeByDay", graphDataByDay);
 
-        List<GraphData> topFiveCategory = incomeDao.getTopFiveIncomeByCategory(userName, filterDate);
+        List<GraphData> topFiveCategory = incomeDao.getTopFiveIncomeByCategory(userName, startFilterDate, endFilterDate);
         request.setAttribute("topFiveCategory", topFiveCategory);
 
 
