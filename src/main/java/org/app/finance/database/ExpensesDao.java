@@ -86,9 +86,74 @@ public class ExpensesDao {
         return expensesCategoryList;
     }
 
+    public void deleteExpensesRecord(String userName, int expensesId) {
+        userId = getUserId(userName);
+        sql = "DELETE FROM expenses " +
+                "WHERE user_id=? AND expenses_id=?";
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, expensesId);
+            preparedStatement.executeUpdate();
+            connection.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("delete record");
+        }
+    }
+
+    public void updateRecord(Expenses expenses, String userName, int expensesId) {
+        userId = getUserId(userName);
+        int amount = expenses.getAmount();
+        String remarks = expenses.getRemarks();
+        int categoryId = expenses.getCategoryId();
+        System.out.println("category id from dao layer" + categoryId);
+        sql = "UPDATE expenses" +
+                " SET expenses_amount=? , expenses_category=? ,remarks=?" +
+                "WHERE user_id=? AND expenses_id=?";
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, amount);
+            preparedStatement.setInt(2, categoryId);
+            preparedStatement.setString(3, remarks);
+            preparedStatement.setInt(4, userId);
+            preparedStatement.setInt(5, expensesId);
+            preparedStatement.executeUpdate();
+            connection.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("update record");
+        }
+    }
+
+    public int getOriginalAmount(String userName, int categoryId, int expensesId) {
+        userId = getUserId(userName);
+        sql = "SELECT expenses_amount FROM expenses" +
+                " WHERE user_id=? AND expenses_category=?";
+        int exoensesAmountBeforeUpdate = 0;
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, categoryId);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                exoensesAmountBeforeUpdate = resultSet.getInt("expenses_amount");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("before update");
+        }
+        return exoensesAmountBeforeUpdate;
+    }
+
     public List<Transaction> getExpensesTransaction(String userName, String startFilterDsate, String endFilterDate) {
         userId = getUserId(userName);
-        String sql = "SELECT expenses_amount,category_name,remarks,date,time " +
+        String sql = "SELECT expenses.expenses_id, expenses.expenses_amount,expenses_category.category_name,remarks,date,time ,expenses_category.category_id " +
                 "FROM expenses" +
                 " INNER JOIN expenses_category ON expenses.expenses_category=expenses_category.category_id " +
                 "WHERE( expenses.user_id =? " +
@@ -118,11 +183,13 @@ public class ExpensesDao {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Transaction transaction = new Transaction();
-                transaction.setAmount(resultSet.getInt(1));
-                transaction.setCategory(resultSet.getString(2));
-                transaction.setRemarks(resultSet.getString(3));
-                transaction.setDate(resultSet.getDate(4));
-                transaction.setTime(resultSet.getTime(5));
+                transaction.setTransactionId(resultSet.getInt(1));
+                transaction.setAmount(resultSet.getInt(2));
+                transaction.setCategory(resultSet.getString(3));
+                transaction.setRemarks(resultSet.getString(4));
+                transaction.setDate(resultSet.getDate(5));
+                transaction.setTime(resultSet.getTime(6));
+                transaction.setCategoryId(resultSet.getInt(7));
                 expensesTransactions.add(transaction);
             }
             connection.close();

@@ -175,14 +175,32 @@
             <th>Remarks</th>
             <td>Date</td>
             <td>Time</td>
+            <td>Actions</td>
         </tr>
         <c:forEach var="income" items="${transactions}">
             <tr>
-                <td>${income.amount}</td>
-                <td>${income.category}</td>
-                <td>${income.remarks}</td>
-                <td>${income.date}</td>
-                <td>${income.time}</td>
+                <form action="income" method="post">
+                    <td><input type="number" name="amount" value="${income.amount}"></td>
+                    <td>
+                        <select name="categoryId" required>
+                            <option selected disabled value="${income.categoryId}">${income.category}</option>
+                            <c:forEach var="category" items="${categoryNames}">
+                                `<option value="${category.categoryId}">
+                                ${category.categoryName}
+                                </option>`
+                            </c:forEach>
+                        </select>
+
+                    </td>
+                    <td><input type="text" name="remarks" value="${income.remarks}"></td>
+                    <td>${income.date}</td>
+                    <td>${income.time}</td>
+                    <td>
+                        <input type="number" value="${income.transactionId}" hidden="hidden" name="incomeId">
+                        <button type="submit" name="submit" value="delete">Delete now</button>
+                        <button type="submit" name="submit" value="update">Update Now</button>
+                    </td>
+                </form>
             </tr>
         </c:forEach>
     </table>

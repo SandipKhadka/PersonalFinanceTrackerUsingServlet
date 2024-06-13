@@ -87,9 +87,53 @@ public class IncomeDao {
         return incomeCategoryList;
     }
 
+    public void deleteIncomeRecord(String userName, int incomeId) {
+        userId = getUserId(userName);
+        sql = "DELETE FROM income " +
+                "WHERE user_id=? AND income_id=?";
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, incomeId);
+            preparedStatement.executeUpdate();
+            connection.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("delete record");
+        }
+    }
+
+    public void updateIncomeRecord(Income income, String userName, int incomeId) {
+        userId = getUserId(userName);
+        int amount = income.getAmount();
+        String remarks = income.getRemarks();
+        int categoryId = income.getCategoryId();
+        System.out.println("category id from dao layer" + categoryId);
+        sql = "UPDATE income" +
+                " SET income_amount=? , income_category=? ,remarks=?" +
+                "WHERE user_id=? AND income_id=?";
+        try {
+            connection = DatabaseConnection.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, amount);
+            preparedStatement.setInt(2, categoryId);
+            preparedStatement.setString(3, remarks);
+            preparedStatement.setInt(4, userId);
+            preparedStatement.setInt(5, incomeId);
+            preparedStatement.executeUpdate();
+            connection.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("update record");
+        }
+    }
+
     public List<Transaction> getIncomeTransaction(String userName, String startFilterDate, String endFilterDAte) {
         userId = getUserId(userName);
-        String sql = "SELECT income_amount,category_name,remarks,date,time " +
+        String sql = "SELECT income_id, income_amount,category_name,remarks,date,time , income.income_category " +
                 "FROM income " +
                 "INNER JOIN income_category ON income.income_category=income_category.category_id " +
                 "WHERE (income.user_id =? AND YEAR(date) >=? AND MONTH(date) >=? AND YEAR(date) <=? AND MONTH(date) <=?)" +
@@ -118,11 +162,13 @@ public class IncomeDao {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Transaction transaction = new Transaction();
-                transaction.setAmount(resultSet.getInt(1));
-                transaction.setCategory(resultSet.getString(2));
-                transaction.setRemarks(resultSet.getString(3));
-                transaction.setDate(resultSet.getDate(4));
-                transaction.setTime(resultSet.getTime(5));
+                transaction.setTransactionId(resultSet.getInt(1));
+                transaction.setAmount(resultSet.getInt(2));
+                transaction.setCategory(resultSet.getString(3));
+                transaction.setRemarks(resultSet.getString(4));
+                transaction.setDate(resultSet.getDate(5));
+                transaction.setTime(resultSet.getTime(6));
+                transaction.setCategoryId(resultSet.getInt(7));
                 incomeTransactions.add(transaction);
             }
             connection.close();

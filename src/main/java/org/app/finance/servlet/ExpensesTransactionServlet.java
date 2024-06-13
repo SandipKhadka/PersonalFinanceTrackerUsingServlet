@@ -83,9 +83,6 @@ public class ExpensesTransactionServlet extends HttpServlet {
 
             if (totalSpendLimit != 0) {
                 if ((totalExpensesAmount + addedExpenses) >= totalSpendLimit) {
-                    System.out.println(totalExpensesAmount);
-                    System.out.println(totalSpendLimit);
-                    System.out.println(leftSpendLimit);
                     request.setAttribute("spendLimitError",
                             "You are exceeding your spending limit left amount is" + " " + leftSpendLimit);
                     doGet(request, response);
@@ -100,6 +97,45 @@ public class ExpensesTransactionServlet extends HttpServlet {
             expenses.setCategoryId(categoryId);
             expenses.setRemarks(remarks);
             expensesDao.addExpanses(expenses, userName);
+        }
+        if (command.equals("delete")) {
+            int expensesId = Integer.parseInt(request.getParameter("expensesId"));
+            System.out.println(expensesId);
+            expensesDao.deleteExpensesRecord(userName, expensesId);
+        }
+        if (command.equals("update")) {
+            int expensesId = Integer.parseInt(request.getParameter("expensesId"));
+            int updatedExpenses = Integer.parseInt(request.getParameter("amount"));
+            String remarks = request.getParameter("remarks");
+            int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+
+            SpendingLimitDao spendingLimitDao = new SpendingLimitDao();
+
+            int originalAmount = expensesDao.getOriginalAmount(userName, categoryId, expensesId);
+
+            int totalSpendLimit = spendingLimitDao.getSumOfSpendLimit(userName, categoryId);
+            int totalExpensesBeforeUpdate = expensesDao.getSumOfExpenses(userName, categoryId);
+            int totalExpensesAfterRemovingOriginalRecord = totalExpensesBeforeUpdate - originalAmount;
+            int leftSpendLimitBeforeUpdate = totalSpendLimit - originalAmount;
+//            int leftSpendLimit = totalSpendLimit + originalAmount - updatedExpenses;
+
+
+            if (totalSpendLimit != 0) {
+                if ((totalExpensesAfterRemovingOriginalRecord + updatedExpenses) >= totalSpendLimit) {
+                    request.setAttribute("updateError",
+                            "You are exceeding your spending limit left amount is" + " " + leftSpendLimitBeforeUpdate);
+                    doGet(request, response);
+                    RequestDispatcher requestDispatcher = request.getRequestDispatcher("expenses_form.jsp");
+                    requestDispatcher.forward(request, response);
+                    return;
+                }
+            }
+
+            Expenses expenses = new Expenses();
+            expenses.setAmount(updatedExpenses);
+            expenses.setCategoryId(categoryId);
+            expenses.setRemarks(remarks);
+            expensesDao.updateRecord(expenses, userName, expensesId);
         }
         response.sendRedirect("expenses");
     }

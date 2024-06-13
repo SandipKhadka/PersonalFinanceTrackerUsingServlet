@@ -4,10 +4,26 @@ import java.sql.Date;
 import java.sql.Time;
 
 public class Transaction {
-    int amount;
+    int amount, transactionId, categoryId;
     String category, remarks, filterDate;
     Time time;
     Date date;
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public int getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(int transactionId) {
+        this.transactionId = transactionId;
+    }
 
     public Time getTime() {
         return time;

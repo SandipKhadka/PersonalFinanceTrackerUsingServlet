@@ -79,6 +79,22 @@ public class IncomeTransactionServlet extends HttpServlet {
             income.setRemarks(remarks);
             incomeDao.addIncome(income, userName);
         }
+
+        if (command.equals("delete")) {
+            int incomeId = Integer.parseInt(request.getParameter("incomeId"));
+            incomeDao.deleteIncomeRecord(userName, incomeId);
+        }
+        if (command.equals("update")) {
+            int incomeId = Integer.parseInt(request.getParameter("incomeId"));
+            int amount = Integer.parseInt(request.getParameter("amount"));
+            int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+            String remarks = request.getParameter("remarks");
+            Income income = new Income();
+            income.setAmount(amount);
+            income.setCategoryId(categoryId);
+            income.setRemarks(remarks);
+            incomeDao.updateIncomeRecord(income, userName, incomeId);
+        }
         response.sendRedirect("income");
     }
 }

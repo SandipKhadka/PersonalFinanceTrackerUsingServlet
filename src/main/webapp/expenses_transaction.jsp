@@ -1,13 +1,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/expense_transaction.css">
-    <title>Document</title>
+    <link rel="stylesheet" href="css/expenses_transaction.css">
+    <title>Expenses</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 
@@ -153,6 +152,9 @@
             <button type="submit">Filter</button>
         </form>
     </div>
+    <div>
+        <span>${updateError}</span>
+    </div>
     <table class="transactions-table">
         <tr>
             <th>Expenses Amou nt</th>
@@ -160,18 +162,36 @@
             <th>Remarks</th>
             <td>Date</td>
             <td>Time</td>
+            <th>Action</th>
         </tr>
         <c:forEach var="expense" items="${transactions}">
             <tr>
-                <td>${expense.amount}</td>
-                <td>${expense.category}</td>
-                <td>${expense.remarks}</td>
-                <td>${expense.date}</td>
-                <td>${expense.time}</td>
+                <form action="expenses" method="post">
+                    <td><input type="number" name="amount" value="${expense.amount}"></td>
+                    <td>
+                        <select name="categoryId" required>
+                            <option selected disabled value="${expense.categoryId}">${expense.category}</option>
+                            <c:forEach var="category" items="${categoryNames}">
+                                `<option value="${category.categoryId}">
+                                ${category.categoryName}
+                                </option>`
+                            </c:forEach>
+                        </select>
+
+                    </td>
+                    <td><input type="text" name="remarks" value="${expense.remarks}"></td>
+                    <td>${expense.date}</td>
+                    <td>${expense.time}</td>
+                    <td>
+                        <input type="number" value="${expense.transactionId}" hidden="hidden" name="expensesId">
+                        <button type="submit" name="submit" value="delete">Delete now</button>
+                        <button type="submit" name="submit" value="update">Update Now</button>
+                    </td>
+                </form>
             </tr>
         </c:forEach>
     </table>
-</div>
+
 </div>
 </body>
 
