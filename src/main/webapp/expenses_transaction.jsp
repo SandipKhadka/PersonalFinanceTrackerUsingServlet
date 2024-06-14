@@ -9,7 +9,6 @@
     <title>Expenses</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
-
     <script type="text/javascript">
         google.charts.load('current', {'packages': ['corechart']});
 
@@ -20,16 +19,22 @@
             var data = new google.visualization.DataTable();
             data.addColumn('string', 'Category');
             data.addColumn('number', 'Amount');
+
             <c:forEach items="${pieChartData}" var="item">
-            data.addRow(['${item.name}', ${item.amount}]);
+            data.addRow(['${item.name}', ${item.amount}])
+
             </c:forEach>
 
             var options = {
                 title: "Expense by Category",
-                width: 400,
-                height: 300,
+                titleTextStyle: {
+                    color: 'white',
+                    bold: false
+                },
+                width: 600,
+                height: 400,
                 backgroundColor: "#333",
-                is3D: true,
+                is3D: false,
                 colors: ["#f5a623", "#e6e6e6", "#6decaf", "#f54394", "#66d8ed"],
             };
             var chart = new google.visualization.PieChart(document.getElementById('expense-by-category'));
@@ -52,8 +57,15 @@
             </c:forEach>
             var options = {
                 title: 'Expenses by day',
+                titleTextStyle: {
+                    color: 'white',
+                    bold: false
+                },
                 curveType: 'function',
-                legend: {position: 'bottom'}
+                width: 600,
+                height: 400,
+                legend: {position: 'bottom'},
+                backgroundColor: "#333"
             };
 
             var chart = new google.charts.Line(document.getElementById('expenses-by-day'));
@@ -71,7 +83,7 @@
             data.addColumn('number', 'Amount');
             data.addColumn({role: "style"});
             <c:forEach var="expenses" items="${topFiveCategory}">
-            data.addRow(['${expenses.name}', ${expenses.amount}, 'green']);
+            data.addRow(['${expenses.name}', ${expenses.amount}, 'orange']);
             </c:forEach>
 
             var view = new google.visualization.DataView(data);
@@ -86,6 +98,10 @@
 
             var options = {
                 title: "Top 5 Expense Categories",
+                titleTextStyle: {
+                    color: 'white',
+                    bold: false
+                },
                 width: 600,
                 height: 400,
                 bar: {groupWidth: "95%"},

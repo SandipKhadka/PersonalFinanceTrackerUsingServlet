@@ -116,6 +116,17 @@
             <div class="summary-value">Rs. ${netIncome}</div>
         </div>
     </div>
+
+    <a href="income">
+        <button>Income Transaction</button>
+    </a>
+    <a href="expenses">
+        <button>Expenses Transaction</button>
+    </a>
+    <a href="spendlimit">
+        <button>Spend Limit</button>
+    </a>
+
     <div class="charts">
         <div class="chart" id="expenses-by-group">
             <!-- Placeholder for Pie Chart -->
@@ -131,16 +142,6 @@
         </div>
     </div>
 </div>
-
-<a href="income">
-    <button>Income Transaction</button>
-</a>
-<a href="expenses">
-    <button>Expenses Transaction</button>
-</a>
-<a href="spendlimit">
-    <button>Spend Limit</button>
-</a>
 
 </body>
 

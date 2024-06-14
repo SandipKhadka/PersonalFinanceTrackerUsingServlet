@@ -24,8 +24,13 @@
 
             var options = {
                 title: "Income of this month",
-                width: 400,
-                height: 300,
+                titleTextStyle: {
+                    color: 'white',
+                    bold: false
+                },
+                width: 600,
+                height: 400,
+                backgroundColor: "#333"
             };
             var chart = new google.visualization.PieChart(
                 document.getElementById("income-by-group")
@@ -49,8 +54,13 @@
                     title: "Income by day",
                     subtitle: "in millions of dollars (USD)",
                 },
-                width: 400,
-                height: 300,
+                titleTextStyle: {
+                    color: 'white',
+                    bold: false
+                },
+                width: 600,
+                height: 400,
+                backgroundColor: "#333"
             };
 
             var chart = new google.charts.Line(
@@ -88,10 +98,15 @@
 
             var options = {
                 title: "Income top five category",
+                titleTextStyle: {
+                    color: 'white',
+                    bold: false
+                },
                 width: 600,
                 height: 400,
                 bar: {groupWidth: "95%"},
                 legend: {position: "none"},
+                backgroundColor: "#333",
             };
             var chart = new google.visualization.BarChart(
                 document.getElementById("top-income-categories")

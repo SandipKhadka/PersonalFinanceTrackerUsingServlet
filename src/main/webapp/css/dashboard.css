@@ -25,17 +25,13 @@ h1 {
     margin-bottom: 20px;
 }
 
-.add-button {
-    position: relative;
-}
-
-.add-button button {
+button {
     background-color: #f5a623;
     border: none;
     color: #333;
     padding: 10px 15px;
     cursor: pointer;
-    border-radius: 50%;
+    border-radius: 5px;
 }
 
 .add-options {
