@@ -153,7 +153,7 @@ public class ExpensesDao {
 
     public List<Transaction> getExpensesTransaction(String userName, String startFilterDsate, String endFilterDate) {
         userId = getUserId(userName);
-        String sql = "SELECT expenses.expenses_id, expenses.expenses_amount,expenses_category.category_name,remarks,date,time ,expenses_category.category_id " +
+        String sql = "SELECT expenses.expenses_id, expenses.expenses_amount,expenses_category.category_name,remarks,date,time ,expenses.expenses_category " +
                 "FROM expenses" +
                 " INNER JOIN expenses_category ON expenses.expenses_category=expenses_category.category_id " +
                 "WHERE( expenses.user_id =? " +

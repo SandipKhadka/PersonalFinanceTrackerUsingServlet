@@ -185,40 +185,65 @@
 
     <table class="transactions-table">
         <tr>
-            <th>Income Amount</th>
+            <th>Expenses Amount</th>
             <th>Category</th>
             <th>Remarks</th>
             <td>Date</td>
             <td>Time</td>
-            <td>Actions</td>
+            <th>Action</th>
         </tr>
         <c:forEach var="income" items="${transactions}">
             <tr>
                 <form action="income" method="post">
-                    <td><input type="number" name="amount" value="${income.amount}"></td>
                     <td>
-                        <select name="categoryId" required>
-                            <option selected disabled value="${income.categoryId}">${income.category}</option>
+                        <label for="amount-${income.transactionId}"
+                               id="defaultAmount-${income.transactionId}">${income.amount}</label>
+                        <input type="number" name="amount" id="amount-${income.transactionId}"
+                               value="${income.amount}" hidden="hidden"></td>
+                    <td>
+                        <span id="defaultCategory-${income.transactionId}">${income.category}</span>
+                        <select name="categoryId" id="categoryId-${income.transactionId}" required hidden="hidden">
+                            <option selected value="${income.categoryId}">${income.category}</option>
                             <c:forEach var="category" items="${categoryNames}">
-                                `<option value="${category.categoryId}">
-                                ${category.categoryName}
-                                </option>`
+                                <option value="${category.categoryId}">
+                                        ${category.categoryName}
+                                </option>
+                                `
                             </c:forEach>
                         </select>
 
                     </td>
-                    <td><input type="text" name="remarks" value="${income.remarks}"></td>
+                    <td>
+                        <label for="remarks-${income.transactionId}"
+                               id="defaultRemarks-${income.transactionId}">${income.remarks}</label>
+                        <input type="text" name="remarks" hidden="hidden" id="remarks-${income.transactionId}"
+                               value="${income.remarks}"></td>
                     <td>${income.date}</td>
                     <td>${income.time}</td>
                     <td>
-                        <input type="number" value="${income.transactionId}" hidden="hidden" name="incomeId">
-                        <button type="submit" name="submit" value="delete">Delete now</button>
-                        <button type="submit" name="submit" value="update">Update Now</button>
+                        <input type="number" value="${income.transactionId}" hidden="hidden" name="incomeId"
+                               id="id-${income.transactionId}">
+                        <button type="submit" name="submit" id="delete-${income.transactionId}" value="delete">Delete
+                            now
+                        </button>
+                        <button type="button" id="edit-${income.transactionId}"
+                                onclick="edit(${income.transactionId})">Edit
+                        </button>
+                        <button type="submit" name="submit" id="update-${income.transactionId}" value="update"
+                                hidden="hidden">Update Now
+                        </button>
+
+                        <button type="button" id="back-${income.transactionId}" hidden="hidden"
+                                onclick="back(${income.transactionId})">Back
+                        </button>
                     </td>
                 </form>
             </tr>
         </c:forEach>
     </table>
+
 </div>
 </body>
 </html>
+<script src="js/editButton.js">
+</script>

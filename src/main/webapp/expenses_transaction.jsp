@@ -173,7 +173,7 @@
     </div>
     <table class="transactions-table">
         <tr>
-            <th>Expenses Amou nt</th>
+            <th>Expenses Amount</th>
             <th>Category</th>
             <th>Remarks</th>
             <td>Date</td>
@@ -183,25 +183,47 @@
         <c:forEach var="expense" items="${transactions}">
             <tr>
                 <form action="expenses" method="post">
-                    <td><input type="number" name="amount" value="${expense.amount}"></td>
                     <td>
-                        <select name="categoryId" required>
-                            <option selected disabled value="${expense.categoryId}">${expense.category}</option>
+                        <label for="amount-${expense.transactionId}"
+                               id="defaultAmount-${expense.transactionId}">${expense.amount}</label>
+                        <input type="number" name="amount" id="amount-${expense.transactionId}"
+                               value="${expense.amount}" hidden="hidden"></td>
+                    <td>
+                        <span id="defaultCategory-${expense.transactionId}">${expense.category}</span>
+                        <select name="categoryId" id="categoryId-${expense.transactionId}" required hidden="hidden">
+                            <option selected value="${expense.categoryId}">${expense.category}</option>
                             <c:forEach var="category" items="${categoryNames}">
-                                `<option value="${category.categoryId}">
-                                ${category.categoryName}
-                                </option>`
+                                <option value="${category.categoryId}">
+                                        ${category.categoryName}
+                                </option>
+                                `
                             </c:forEach>
                         </select>
 
                     </td>
-                    <td><input type="text" name="remarks" value="${expense.remarks}"></td>
+                    <td>
+                        <label for="remarks-${expense.transactionId}"
+                               id="defaultRemarks-${expense.transactionId}">${expense.remarks}</label>
+                        <input type="text" name="remarks" hidden="hidden" id="remarks-${expense.transactionId}"
+                               value="${expense.remarks}"></td>
                     <td>${expense.date}</td>
                     <td>${expense.time}</td>
                     <td>
-                        <input type="number" value="${expense.transactionId}" hidden="hidden" name="expensesId">
-                        <button type="submit" name="submit" value="delete">Delete now</button>
-                        <button type="submit" name="submit" value="update">Update Now</button>
+                        <input type="number" value="${expense.transactionId}" hidden="hidden" name="expensesId"
+                               id="id-${expense.transactionId}">
+                        <button type="submit" name="submit" id="delete-${expense.transactionId}" value="delete">Delete
+                            now
+                        </button>
+                        <button type="button" id="edit-${expense.transactionId}"
+                                onclick="edit(${expense.transactionId})">Edit
+                        </button>
+                        <button type="submit" name="submit" id="update-${expense.transactionId}" value="update"
+                                hidden="hidden">Update Now
+                        </button>
+
+                        <button type="button" id="back-${expense.transactionId}" hidden="hidden"
+                                onclick="back(${expense.transactionId})">Back
+                        </button>
                     </td>
                 </form>
             </tr>
@@ -212,3 +234,5 @@
 </body>
 
 </html>
+
+<script src="js/editButton.js"></script>

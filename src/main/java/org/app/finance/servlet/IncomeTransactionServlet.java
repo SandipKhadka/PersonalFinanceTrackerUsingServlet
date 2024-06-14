@@ -83,6 +83,7 @@ public class IncomeTransactionServlet extends HttpServlet {
         if (command.equals("delete")) {
             int incomeId = Integer.parseInt(request.getParameter("incomeId"));
             incomeDao.deleteIncomeRecord(userName, incomeId);
+            System.out.println(incomeId);
         }
         if (command.equals("update")) {
             int incomeId = Integer.parseInt(request.getParameter("incomeId"));

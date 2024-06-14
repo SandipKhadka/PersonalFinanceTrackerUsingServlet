@@ -62,6 +62,7 @@ public class ExpensesTransactionServlet extends HttpServlet {
         String userName = (String) session.getAttribute("user");
 
         String command = request.getParameter("submit");
+        System.out.println(command);
 
         ExpensesDao expensesDao = new ExpensesDao();
 
@@ -105,9 +106,13 @@ public class ExpensesTransactionServlet extends HttpServlet {
         }
         if (command.equals("update")) {
             int expensesId = Integer.parseInt(request.getParameter("expensesId"));
+            System.out.println("expenses id" + expensesId);
             int updatedExpenses = Integer.parseInt(request.getParameter("amount"));
+            System.out.println("amount" + updatedExpenses);
             String remarks = request.getParameter("remarks");
+            System.out.println("remarks" + remarks);
             int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+            System.out.println("category id" + categoryId);
 
             SpendingLimitDao spendingLimitDao = new SpendingLimitDao();
 
