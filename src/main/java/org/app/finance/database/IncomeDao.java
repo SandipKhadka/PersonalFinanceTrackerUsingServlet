@@ -66,9 +66,11 @@ public class IncomeDao {
 
     public List<IncomeCategory> getIncomeCategory(String userName) {
         userId = getUserId(userName);
-        sql = "SELECT category_id,category_name " +
+        sql = "SELECT " +
+                "category_id,category_name " +
                 "FROM income_category " +
-                "WHERE user_id=? OR user_id IS NULL";
+                "WHERE user_id=? " +
+                "OR user_id IS NULL";
         List<IncomeCategory> incomeCategoryList = new ArrayList<IncomeCategory>();
         try {
             connection = DatabaseConnection.getConnection();
@@ -112,7 +114,9 @@ public class IncomeDao {
         int categoryId = income.getCategoryId();
         System.out.println("category id from dao layer" + categoryId);
         sql = "UPDATE income" +
-                " SET income_amount=? , income_category=? ,remarks=?" +
+                " SET income_amount=? , " +
+                "income_category=? ," +
+                "remarks=?" +
                 "WHERE user_id=? AND income_id=?";
         try {
             connection = DatabaseConnection.getConnection();
@@ -133,9 +137,15 @@ public class IncomeDao {
 
     public List<Transaction> getIncomeTransaction(String userName, String startFilterDate, String endFilterDAte) {
         userId = getUserId(userName);
-        String sql = "SELECT income_id, income_amount,category_name,remarks,date,time , income.income_category " +
+        String sql = "SELECT " +
+                "income_id, income_amount," +
+                "category_name,remarks" +
+                ",date," +
+                "time , " +
+                "income.income_category " +
                 "FROM income " +
-                "INNER JOIN income_category ON income.income_category=income_category.category_id " +
+                "INNER JOIN income_category " +
+                "ON income.income_category=income_category.category_id " +
                 "WHERE (income.user_id =? AND YEAR(date) >=? AND MONTH(date) >=? AND YEAR(date) <=? AND MONTH(date) <=?)" +
                 "OR (income.user_id=? AND YEAR(date)=? AND MONTH(date)=?)";
         List<Transaction> incomeTransactions = new ArrayList<Transaction>();
@@ -184,7 +194,8 @@ public class IncomeDao {
         LocalDate localDate = LocalDate.now();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
-        String sql = "SELECT SUM(income_amount ) " +
+        String sql = "SELECT " +
+                "SUM(income_amount ) " +
                 "FROM income " +
                 " WHERE user_id=? AND YEAR(date) =? AND MONTH(date) =?";
         int income = 0;
@@ -217,9 +228,12 @@ public class IncomeDao {
             endMonth = Integer.parseInt(endDateString[1]);
         }
 
-        String sql = "SELECT SUM(income.income_amount),income_category.category_name " +
+        String sql = "SELECT " +
+                "SUM(income.income_amount)," +
+                "income_category.category_name " +
                 "FROM income" +
-                " INNER JOIN income_category ON income.income_category = income_category.category_id" +
+                " INNER JOIN income_category ON " +
+                "income.income_category = income_category.category_id" +
                 " WHERE (income.user_id=? AND YEAR(date)>=? AND MONTH(date)>=? AND YEAR(date)<=? AND MONTH(date)<=?)" +
                 "OR (income.user_id=? AND YEAR(date)=? AND MONTH(date)=?) " +
                 "GROUP BY income_category.category_id";
@@ -264,7 +278,9 @@ public class IncomeDao {
             endMonth = Integer.parseInt(endDateString[1]);
         }
 
-        sql = "SELECT DAY(date),SUM(income.income_amount) " +
+        sql = "SELECT " +
+                "DAY(date)," +
+                "SUM(income.income_amount) " +
                 "FROM income  " +
                 "WHERE (user_id=? AND YEAR(date)>=? AND MONTH(date)<=? AND YEAR(date)<=? AND MONTH(date)<=?)" +
                 "OR (user_id=? AND YEAR(date)=? AND MONTH(date)=?) " +
@@ -300,9 +316,12 @@ public class IncomeDao {
     public List<GraphData> getTopFiveIncomeByCategory(String userName, String startFilterDate, String endFilterDate) {
         userId = getUserId(userName);
         List<GraphData> graphData = new ArrayList<GraphData>();
-        sql = "SELECT SUM(income.income_amount),income_category.category_name " +
+        sql = "SELECT " +
+                "SUM(income.income_amount)," +
+                "income_category.category_name " +
                 "FROM income " +
-                "INNER JOIN income_category ON income.income_category = income_category.category_id" +
+                "INNER JOIN income_category " +
+                "ON income.income_category = income_category.category_id" +
                 " WHERE( income.user_id=? AND YEAR(DATE)>=? AND MONTH(DATE)>=? AND YEAR(date)<=? AND MONTH(date)<=?)" +
                 "OR (income.user_id=? AND YEAR(date)=? AND MONTH(date)=?)" +
                 " GROUP BY income.income_category" +
@@ -346,7 +365,9 @@ public class IncomeDao {
     }
 
     public int getUserId(String userName) {
-        sql = "SELECT user_id FROM user_details" +
+        sql = "SELECT " +
+                "user_id " +
+                "FROM user_details" +
                 " WHERE user_name =?";
         try {
             connection = DatabaseConnection.getConnection();

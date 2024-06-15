@@ -118,6 +118,9 @@
 
 <body>
 <div class="container">
+    <a href="dashboard">
+        <button>&#x2190; Dashboard</button>
+    </a>
     <div class="expense-form">
         <form action="expenses" method="post">
             <h2>Add New Transaction</h2>

@@ -65,9 +65,12 @@ public class ExpensesDao {
 
     public List<ExpensesCategory> getExpensesCategory(String userName) {
         userId = getUserId(userName);
-        sql = "SELECT category_id, category_name " +
+        sql = "SELECT " +
+                "category_id," +
+                " category_name " +
                 "FROM expenses_category " +
-                "WHERE user_id=? OR user_id IS NULL";
+                "WHERE user_id=? " +
+                "OR user_id IS NULL";
         List<ExpensesCategory> expensesCategoryList = new ArrayList<ExpensesCategory>();
         try {
             connection = DatabaseConnection.getConnection();
@@ -111,7 +114,9 @@ public class ExpensesDao {
         int categoryId = expenses.getCategoryId();
         System.out.println("category id from dao layer" + categoryId);
         sql = "UPDATE expenses" +
-                " SET expenses_amount=? , expenses_category=? ,remarks=?" +
+                " SET expenses_amount=? , " +
+                "expenses_category=? ," +
+                "remarks=?" +
                 "WHERE user_id=? AND expenses_id=?";
         try {
             connection = DatabaseConnection.getConnection();
@@ -132,9 +137,11 @@ public class ExpensesDao {
 
     public int getOriginalAmount(String userName, int categoryId, int expensesId) {
         userId = getUserId(userName);
-        sql = "SELECT expenses_amount FROM expenses" +
+        sql = "SELECT " +
+                "expenses_amount " +
+                "FROM expenses" +
                 " WHERE user_id=? AND expenses_category=?";
-        int exoensesAmountBeforeUpdate = 0;
+        int expensesAmountBeforeUpdate = 0;
         try {
             connection = DatabaseConnection.getConnection();
             preparedStatement = connection.prepareStatement(sql);
@@ -142,20 +149,28 @@ public class ExpensesDao {
             preparedStatement.setInt(2, categoryId);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                exoensesAmountBeforeUpdate = resultSet.getInt("expenses_amount");
+                expensesAmountBeforeUpdate = resultSet.getInt("expenses_amount");
             }
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("before update");
         }
-        return exoensesAmountBeforeUpdate;
+        return expensesAmountBeforeUpdate;
     }
 
     public List<Transaction> getExpensesTransaction(String userName, String startFilterDsate, String endFilterDate) {
         userId = getUserId(userName);
-        String sql = "SELECT expenses.expenses_id, expenses.expenses_amount,expenses_category.category_name,remarks,date,time ,expenses.expenses_category " +
+        String sql = "SELECT " +
+                "expenses.expenses_id, " +
+                "expenses.expenses_amount," +
+                "expenses_category.category_name," +
+                "remarks," +
+                "date," +
+                "time ," +
+                "expenses.expenses_category " +
                 "FROM expenses" +
-                " INNER JOIN expenses_category ON expenses.expenses_category=expenses_category.category_id " +
+                " INNER JOIN expenses_category " +
+                "ON expenses.expenses_category=expenses_category.category_id " +
                 "WHERE( expenses.user_id =? " +
                 "AND YEAR(date) >=? AND MONTH(date) >=?  AND YEAR(date) <=? AND MONTH(date) <=?)" +
                 "OR (expenses.user_id=? AND  YEAR(date)=? AND MONTH(date)=?)";
@@ -205,7 +220,8 @@ public class ExpensesDao {
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
         userId = getUserId(userName);
-        sql = "SELECT SUM(expenses.expenses_amount ) " +
+        sql = "SELECT " +
+                "SUM(expenses.expenses_amount ) " +
                 "FROM expenses " +
                 "WHERE user_id=? AND YEAR(date) =? AND MONTH(date) =?";
         int expenses = 0;
@@ -232,8 +248,9 @@ public class ExpensesDao {
         LocalDate localDate = LocalDate.now();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
-        sql = "SELECT SUM(expenses.expenses_amount) F" +
-                "ROM expenses " +
+        sql = "SELECT " +
+                "SUM(expenses.expenses_amount) " +
+                "FROM expenses " +
                 "WHERE user_id=? AND expenses_category=? AND year(date)=? AND MONTH(date)=?";
         try {
             connection = DatabaseConnection.getConnection();
@@ -267,9 +284,12 @@ public class ExpensesDao {
             endYear = Integer.parseInt(endDateString[0]);
             endMonth = Integer.parseInt(endDateString[1]);
         }
-        String sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name " +
+        String sql = "SELECT " +
+                "SUM(expenses.expenses_amount)," +
+                "expenses_category.category_name " +
                 "FROM expenses " +
-                "INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id " +
+                "INNER JOIN expenses_category " +
+                "ON expenses.expenses_category = expenses_category.category_id " +
                 "WHERE (expenses.user_id=? AND YEAR(date)>=? AND MONTH(date)>=? AND YEAR(date)<=? AND MONTH(date)<+?)" +
                 "OR (expenses.user_id=? AND YEAR(date)=? AND MONTH(date)=?)" +
                 " GROUP BY expenses_category.category_id";
@@ -313,7 +333,9 @@ public class ExpensesDao {
             endYear = Integer.parseInt(endDateString[0]);
             endMonth = Integer.parseInt(endDateString[1]);
         }
-        sql = "SELECT DAY(date),SUM(expenses.expenses_amount) " +
+        sql = "SELECT " +
+                "DAY(date)," +
+                "SUM(expenses.expenses_amount) " +
                 "FROM expenses " +
                 " WHERE (user_id=? AND YEAR(date)>=? AND MONTH(date)>=? AND YEAR(date)<=? AND MONTH(date)<=?)" +
                 "OR (user_id=? AND YEAR(date)=? AND MONTH(date)=?)" +
@@ -349,9 +371,12 @@ public class ExpensesDao {
     public List<GraphData> getTopFiveExpensesByCategory(String userName, String startFilterDate, String endFilterDate) {
         userId = getUserId(userName);
         List<GraphData> graphData = new ArrayList<GraphData>();
-        sql = "SELECT SUM(expenses.expenses_amount),expenses_category.category_name " +
+        sql = "SELECT " +
+                "SUM(expenses.expenses_amount)," +
+                "expenses_category.category_name " +
                 "FROM expenses " +
-                "INNER JOIN expenses_category ON expenses.expenses_category = expenses_category.category_id " +
+                "INNER JOIN expenses_category " +
+                "ON expenses.expenses_category = expenses_category.category_id " +
                 "WHERE (expenses.user_id=? AND YEAR(DATE)>=? AND MONTH(DATE)>=? AND YEAR(date)<=? AND MONTH(date)<=?)" +
                 "OR (expenses.user_id=? AND YEAR(date)=? AND MONTH(date)=?)" +
                 "GROUP BY expenses.expenses_category " +

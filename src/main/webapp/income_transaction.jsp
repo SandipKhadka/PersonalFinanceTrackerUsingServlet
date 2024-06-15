@@ -117,6 +117,9 @@
 </head>
 <body>
 <div class="container">
+    <a href="dashboard">
+        <button>&#x2190; Dashboard</button>
+    </a>
     <div class="income-form">
         <form action="income" method="post">
             <h2>Add Income</h2>

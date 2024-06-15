@@ -46,9 +46,13 @@ public class SpendingLimitDao {
         LocalDate localDate = LocalDate.now();
         year = localDate.getYear();
         month = localDate.getMonthValue();
-        sql = "SELECT spending_limit.amount,expenses_category.category_name" +
+        sql = "SELECT " +
+                "spending_limit." +
+                "amount," +
+                "expenses_category.category_name" +
                 " FROM spending_limit" +
-                " INNER JOIN expenses_category ON spending_limit.category_id = expenses_category.category_id " +
+                " INNER JOIN expenses_category " +
+                "ON spending_limit.category_id = expenses_category.category_id " +
                 "WHERE spending_limit.user_id=? AND YEAR(date)=? AND MONTH(date)=?";
         try {
             connection = DatabaseConnection.getConnection();
@@ -79,7 +83,8 @@ public class SpendingLimitDao {
         LocalDate localDate = LocalDate.now();
         year = localDate.getYear();
         month = localDate.getMonthValue();
-        sql = "SELECT SUM(spending_limit.amount) " +
+        sql = "SELECT " +
+                "SUM(spending_limit.amount) " +
                 "FROM spending_limit" +
                 " WHERE user_id=? AND category_id=? AND year(date)=? AND MONTH(date)=?";
         try {
@@ -172,7 +177,9 @@ public class SpendingLimitDao {
     }
 
     public int getUserId(String userName) {
-        sql = "SELECT user_id FROM user_details" +
+        sql = "SELECT " +
+                "user_id " +
+                "FROM user_details" +
                 " WHERE user_name=? ";
         try {
             connection = DatabaseConnection.getConnection();
