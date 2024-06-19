@@ -12,7 +12,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IncomeDao {
+public class IncomeDao { // this is the function
     int amount, categoryId, userId;
     String remarks, sql;
     Connection connection;
@@ -146,7 +146,8 @@ public class IncomeDao {
                 "FROM income " +
                 "INNER JOIN income_category " +
                 "ON income.income_category=income_category.category_id " +
-                "WHERE (income.user_id =? AND YEAR(date) >=? AND MONTH(date) >=? AND YEAR(date) <=? AND MONTH(date) <=?)" +
+                "WHERE (income.user_id =? AND YEAR(date) >=? AND MONTH(date) >=? AND YEAR(date) <=? AND MONTH(date) <=?)"
+                +
                 "OR (income.user_id=? AND YEAR(date)=? AND MONTH(date)=?)";
         List<Transaction> incomeTransactions = new ArrayList<Transaction>();
         startDateString = startFilterDate.split("-");
@@ -215,7 +216,8 @@ public class IncomeDao {
         return income;
     }
 
-    public List<GraphData> getIncomesDataWithAmountAndCategory(String userName, String startFilterDate, String endFilterDate) {
+    public List<GraphData> getIncomesDataWithAmountAndCategory(String userName, String startFilterDate,
+            String endFilterDate) {
         userId = getUserId(userName);
         List<GraphData> data = new ArrayList<GraphData>();
         startDateString = startFilterDate.split("-");
@@ -267,7 +269,7 @@ public class IncomeDao {
 
     public List<GraphData> getIncomeByDay(String userName, String startFilterDate, String endFilterDate) {
         userId = getUserId(userName);
-        List<GraphData> expensesByDay = new ArrayList<GraphData>();
+        List<GraphData> incomesByDay = new ArrayList<GraphData>();
         startDateString = startFilterDate.split("-");
         startYear = Integer.parseInt(startDateString[0]);
         startMonth = Integer.parseInt(startDateString[1]);
@@ -301,16 +303,16 @@ public class IncomeDao {
                 GraphData graphTransaction = new GraphData();
                 graphTransaction.setDay(resultSet.getInt(1));
                 graphTransaction.setAmount(resultSet.getInt(2));
-                expensesByDay.add(graphTransaction);
+                incomesByDay.add(graphTransaction);
             }
             connection.close();
             preparedStatement.close();
             resultSet.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("expenses sum");
+            System.out.println("incomes sum");
         }
-        return expensesByDay;
+        return incomesByDay;
     }
 
     public List<GraphData> getTopFiveIncomeByCategory(String userName, String startFilterDate, String endFilterDate) {
